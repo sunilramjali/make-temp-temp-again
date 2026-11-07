@@ -27,6 +27,15 @@ Dataset files are logged in [`data/sources.csv`](../data/sources.csv). Policy do
 | CORE sub-national lettings dashboard, 2024-25 (Power BI). Probably where local authority level lettings sit | https://app.powerbi.com/view?r=eyJrIjoiMjQxZjc1NWUtZmE2NS00N2ZmLWE1OWMtNmY3MmIzYWMzZjFmIiwidCI6ImJmMzQ2ODEwLTljN2QtNDNkZS1hODcyLTI0YTJlZjM5OTVhOCJ9 | none | Not opened |
 | Rents, lettings and tenancies: data notes and definitions | https://www.gov.uk/guidance/rents-lettings-and-tenancies-data-notes-and-definitions-for-local-authorities-and-data-analysts | none | Not opened |
 
+## 1b. Datasets supplied by the user (7 Nov 2026)
+
+| What | Link | Local copy | Status |
+|---|---|---|---|
+| Trust for London, London's Poverty Profile 2026, chart T87: TA types in London 2002-2025 | http://www.trustforlondon.org.uk/data | `data/raw/trust_for_london/T87_EqlYvkV.csv` | Read in full |
+| Trust for London, chart T88: TA in London boroughs, 2025 Q4 (4-quarter average) | http://www.trustforlondon.org.uk/data | `data/raw/trust_for_london/T88_55WCaNF.csv` | Read in full |
+| GLA, Council Homes: starts on site and completions, to end of June 2026 | URL not in the file | `data/raw/gla/GLA stats - council homes_Q1_2026-27.xlsx` | Read in full (Table 2) |
+| MHCLG, LAHS 2025-26 return form (blank) | URL not in the file | `data/raw/mhclg/2025-26_LAHS_form.xlsx` | Checked: no figures, definitions only |
+
 ## 2. Newham Council policy documents
 
 | What | Link | Local copy | Status |
