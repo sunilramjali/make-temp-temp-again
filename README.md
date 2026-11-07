@@ -2,20 +2,21 @@
 
 Research into families in temporary accommodation (TA) across London, with Newham examined in detail, to find the barriers to moving on and test whether a coordinated move-on pathway would fill a genuine gap.
 
-> **New here?** Read [Quick start](#quick-start), then [Starting a work session](#starting-a-work-session). It takes about 5 minutes.
+> **To view the results:** follow [Quick start](#quick-start) and open the dashboard, or read the [evidence brief](docs/newham_evidence_brief.md). Team members: also read [Starting a work session](#starting-a-work-session).
 
 ---
 
 ## Contents
 
 1. [Project overview](#project-overview)
-2. [Quick start](#quick-start)
-3. [Project structure](#project-structure)
-4. [Starting a work session](#starting-a-work-session)
-5. [Ending a work session](#ending-a-work-session)
-6. [Git workflow](#git-workflow)
-7. [Data rules](#data-rules)
-8. [Methodology](#methodology)
+2. [What's in it](#whats-in-it)
+3. [Quick start](#quick-start)
+4. [Project structure](#project-structure)
+5. [Starting a work session](#starting-a-work-session)
+6. [Ending a work session](#ending-a-work-session)
+7. [Git workflow](#git-workflow)
+8. [Data rules](#data-rules)
+9. [Methodology](#methodology)
 
 ---
 
@@ -32,26 +33,46 @@ TA is meant to be short-term housing, but families can stay in it for a long tim
 
 **Working concept (to be tested, not assumed):** a *coordinated move-on pathway*. Each family gets one plan with a named contact, a clear explanation of the routes (social housing, private rented sector), practical help with applications and deposits, and regular updates while they wait. The research decides whether to refine or reject it.
 
+All findings are **descriptive**: they show patterns, not causes. Only open, published data is used.
+
+---
+
+## What's in it
+
+| Deliverable | Where | What it is |
+|---|---|---|
+| Dashboard | `app/` (run with Streamlit) | Five pages: London boroughs, Demographics, Current solution, Social housing, Policies. Every chart has a data table, definitions and caveats, and a source line |
+| Evidence brief | [`docs/newham_evidence_brief.md`](docs/newham_evidence_brief.md) | Written findings: who is in TA, placements and length of stay, policies, social housing supply, barriers to entry |
+| Source list | [`docs/source_links.md`](docs/source_links.md) | Every source with its link and how far it was checked |
+| Services map | [`policy/services_map.csv`](policy/services_map.csv) | Services offered, kept separate from evidence of uptake and outcomes, with source pages |
+| Evidence gaps | [`docs/evidence_gaps.md`](docs/evidence_gaps.md) | Questions the published data cannot answer, and possible routes (e.g. FOI) |
+| Data pipeline | `src/ta_london/` | Loads the raw files in `data/raw/` into one tidy table (74 indicators), with tests |
+| Decisions and post-mortem | [`docs/decisions.md`](docs/decisions.md), [`docs/postmortems/`](docs/postmortems/) | Agreed decisions; review of the "No data loaded" incident |
+
 ---
 
 ## Quick start
 
+Needs Python 3.12 and [uv](https://docs.astral.sh/uv/).
+
 ```bash
 git clone https://github.com/sunilramjali/make-temp-temp-again.git
 cd make-temp-temp-again
+uv sync                            # install dependencies
+uv run streamlit run app/Home.py   # open the dashboard
 ```
 
-**Environment:** Python 3.12 + uv (see decision #6 in [`docs/decisions.md`](docs/decisions.md)).
+On first launch the dashboard builds its data from `data/raw/` (about 30 seconds, shown with a spinner). After that it opens straight away.
+
+Other commands:
 
 ```bash
-uv sync                            # install dependencies
-uv run pytest && uv run ruff check # checks
-uv run python -m ta_london.pipeline # build data/processed/indicators.parquet from data/raw/ (about 2 minutes)
-uv run jupyter lab                 # notebooks
-uv run streamlit run app/Home.py   # dashboard
+uv run python -m ta_london.pipeline   # rebuild the data by hand (e.g. after adding a raw file)
+uv run pytest                         # tests
+uv run ruff check && uv run ruff format --check   # lint and format checks
 ```
 
-The dashboard shows an empty state on each page until the pipeline has been run. `data/processed/` and `data/interim/` are not committed, so run the pipeline after cloning. GR's policy documents go in `policy/` as `.md` files and appear on the *Policies* page.
+`data/processed/` and `data/interim/` are generated and not committed. Policy summaries saved as `.md` files under `policy/` appear on the dashboard's Policies page.
 
 ---
 
@@ -59,24 +80,25 @@ The dashboard shows an empty state on each page until the pipeline has been run.
 
 ```
 data/
-  raw/            Original downloads. NEVER edit, only add.
-  interim/        Partially cleaned / reshaped data
-  processed/      Analysis-ready tables used by notebooks and the app
-  reference/      Lookups: borough codes, LHA rates, population denominators
-  sources.csv     Register: one row per dataset (source, definition, period)
+  raw/            Original downloads (MHCLG, Trust for London, GLA). Never edited, only added to.
+  interim/        One table per source (generated)
+  processed/      indicators.parquet, the tidy table the dashboard reads (generated)
+  reference/      london_boroughs.csv, the 33-borough code lookup (generated from Live Table 600)
+  sources.csv     Register: one row per dataset (source, definition, reference period)
 policy/
-  national/       Legislation, Code of Guidance, national policy
-  newham/         Newham strategies, allocations scheme, budget reports
-  comparators/    Comparator boroughs' equivalent documents
+  national/ newham/ comparators/   Policy documents and summaries
   services_map.csv  What each borough offers vs evidence it is used or works
-notebooks/        Analysis, numbered by methodology step (01_…, 02_…)
-src/ta_london/    Reusable Python code: loading, cleaning, indicators
-app/              Streamlit dashboard (displays results only, no cleaning logic)
+src/ta_london/    Pipeline: loaders (ingest/), indicators and dictionary, schema, checks
+app/              Streamlit dashboard (display only); viz.py holds the chart design tokens
+tests/            Unit tests, parser fixtures, checks on the real output
 docs/
-  worklog/        Session log: one file per work session
-  decisions.md    Decisions we've agreed, and why
-  evidence_gaps.md  Questions the data cannot answer
-outputs/          Generated figures and tables (not committed)
+  newham_evidence_brief.md  Written findings
+  source_links.md           All sources with links
+  evidence_gaps.md          Questions the data cannot answer
+  decisions.md              Decisions we've agreed, and why
+  postmortems/              Incident reviews
+  worklog/                  Session log: one file per work session
+.streamlit/config.toml  Dashboard theme
 CLAUDE.md         Context file read automatically by Claude Code
 ```
 

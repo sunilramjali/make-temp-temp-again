@@ -1,16 +1,26 @@
 import streamlit as st
 
-from components import caveat, indicator_explorer, load_data, source_footnote, stacked_trend, trend
+from components import (
+    caveat,
+    chart_title,
+    indicator_explorer,
+    load_data,
+    source_footnote,
+    stacked_trend,
+    trend,
+)
 
 st.set_page_config(page_title="London boroughs", layout="wide")
 
 indicator_explorer(
     "London boroughs",
     "Borough comparison of temporary accommodation (TA), the housing register, social lettings "
-    "and new council homes. Newham is highlighted in red. Choose an indicator and period. "
+    "and new council homes, with Newham highlighted. Choose an indicator and period. "
     "Indicators ending '(4-quarter average)' are Trust for London averages, a different measure "
     "from the MHCLG 31 March 2026 snapshot.",
     [
+        "ta_households_pct_of_households",
+        "ta_households_with_children_pct_of_households",
         "ta_households",
         "ta_households_per_1000",
         "ta_households_avg4q",
@@ -38,11 +48,16 @@ df = load_data()
 if df is not None and not df[df.indicator == "ta_households_avg4q"].empty:
     st.divider()
     st.header("London over time, 2002 to 2025")
-    st.write(
-        "London-wide households in TA, average of four quarters each year (Trust for London, "
-        "from MHCLG). Borough-level history is not in the data yet."
+    chart_title(
+        "Households in TA in London, yearly average",
+        "Up from 48,678 in 2002 to 74,860 in 2025. Trust for London, from MHCLG; the 2018/2019 "
+        "line marks a change in how MHCLG collects the data.",
     )
     trend(df, "ta_households_avg4q", ["London"])
+    chart_title(
+        "London households in TA by type of accommodation",
+        "Nightly-paid self-contained accommodation has become the largest type.",
+    )
     stacked_trend(
         df,
         "ta_households_by_accommodation_type_avg4q",

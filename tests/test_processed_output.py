@@ -82,3 +82,9 @@ def test_every_source_id_is_registered(df):
 def test_out_of_area_share_is_derived(df):
     r = one(df, "E09000025", "ta_households_out_of_area_share")
     assert round(r["value"], 1) == 42.0 and r["unit"] == "percent"
+
+
+def test_pct_of_households_matches_mhclg_rate(df):
+    pct = one(df, "E09000025", "ta_households_pct_of_households")["value"]
+    rate = one(df, "E09000025", "ta_households_per_1000")["value"]
+    assert abs(pct - rate / 10) < 0.01  # same source, so % = per-1,000 / 10

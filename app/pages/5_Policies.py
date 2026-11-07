@@ -2,85 +2,151 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from components import DESCRIPTIVE, read_doc
+import viz
+from components import chart_title, page_header, read_doc, table_view
 from ta_london.paths import SERVICES_MAP
 from ta_london.services import add_evidence_states, list_policy_documents, load_services
 
-st.title("Policies and services")
-st.write(
+st.set_page_config(page_title="Policies and services · TA in London", layout="wide")
+page_header(
+    "Policies and services",
     "What each borough offers, kept separate from evidence that a service is used or works. "
-    "A published scheme is not evidence that it works."
+    "A published scheme is not evidence that it works.",
 )
-st.caption(DESCRIPTIVE)
 
-tab_matrix, tab_table, tab_docs, tab_brief, tab_sources = st.tabs(
-    ["Matrix", "Services table", "Policy documents", "Evidence brief", "Source links"]
-)
+CATEGORY_LABELS = {
+    "prevention": "Prevention",
+    "prs_access": "Private rented access",
+    "landlord_incentives": "Landlord incentives",
+    "deposits": "Deposits",
+    "allocations": "Allocations",
+    "tenancy_support": "Tenancy support",
+}
+STATES = ["Not recorded", "Offered", "Offered, uptake evidence", "Offered, outcome evidence"]
 
 services = add_evidence_states(load_services()) if SERVICES_MAP.exists() else pd.DataFrame()
 
-STATE_LABELS = {
-    0: "Not recorded",
-    1: "Offered",
-    2: "Offered + uptake evidence",
-    3: "Offered + outcome evidence",
-}
+tab_overview, tab_table, tab_docs, tab_brief, tab_sources = st.tabs(
+    ["Overview", "All services", "Policy documents", "Evidence brief", "Source links"]
+)
 
-
-def state(row) -> int:
-    if row["has_outcome_evidence"]:
-        return 3
-    if row["has_uptake_evidence"]:
-        return 2
-    return 1 if row["offered"] else 0
-
-
-with tab_matrix:
+with tab_overview:
     if services.empty:
-        st.warning(
-            "`policy/services_map.csv` has no rows yet. Add rows (one per borough and service), "
-            "citing the policy document and section."
+        st.info(
+            "`policy/services_map.csv` has no rows yet. Add one row per borough and service, "
+            "citing the policy document and page."
         )
     else:
-        # Highest recorded state per borough x category; text shows each state separately.
-        services = services.assign(state=services.apply(state, axis=1))
-        grid = services.pivot_table(
-            index="borough", columns="service_category", values="state", aggfunc="max"
-        ).fillna(0)
+        c = st.columns(3)
+        c[0].metric("Services offered", f"{int(services['offered'].sum())}")
+        c[1].metric("With uptake evidence", f"{int(services['has_uptake_evidence'].sum())}")
+        c[2].metric("With outcome evidence", f"{int(services['has_outcome_evidence'].sum())}")
+
+        chart_title(
+            "Evidence for each service",
+            "Offered means a published document describes it. Uptake and outcome need separate "
+            "evidence: numbers using it, or results.",
+        )
+        checklist = pd.DataFrame(
+            {
+                "Borough": services["borough"],
+                "Category": services["service_category"].map(CATEGORY_LABELS),
+                "Service": services["service_name"],
+                "Offered": services["offered"],
+                "Uptake": services["has_uptake_evidence"],
+                "Outcome": services["has_outcome_evidence"],
+                "Source": services["offered_source"],
+            }
+        ).sort_values(["Borough", "Category", "Service"])
+        st.dataframe(
+            checklist,
+            hide_index=True,
+            width="stretch",
+            height=38 + 35 * len(checklist),
+            column_config={
+                "Borough": st.column_config.TextColumn(width="small"),
+                "Offered": st.column_config.CheckboxColumn(width="small"),
+                "Uptake": st.column_config.CheckboxColumn(width="small"),
+                "Outcome": st.column_config.CheckboxColumn(width="small"),
+                "Service": st.column_config.TextColumn(width="large"),
+                "Source": st.column_config.TextColumn(width="medium"),
+            },
+        )
+
+        # Borough x category matrix: highest evidence level recorded in each cell.
+        grid = (
+            services.pivot_table(
+                index="borough", columns="service_category", values="evidence_level", aggfunc="max"
+            )
+            .reindex(columns=list(CATEGORY_LABELS))
+            .fillna(0)
+            .astype(int)
+        )
+        chart_title(
+            "Borough by service category",
+            "Each cell shows the strongest evidence recorded. Only Newham is mapped so far; "
+            "comparator boroughs will appear as rows.",
+        )
+        ramp = viz.tok("ordinal")
+        colours = [viz.tok("neutral"), ramp[0], ramp[1], ramp[2]]
+        scale = []
+        for i, col in enumerate(colours):
+            scale += [[i / 4, col], [(i + 1) / 4, col]]
+        short = ["None recorded", "Offered", "Uptake", "Outcome"]
+        text_colour = [viz.tok("ink2"), "#0b0b0b", "#ffffff", "#ffffff"]
+        x_labels = [CATEGORY_LABELS[c] for c in grid.columns]
         fig = go.Figure(
             go.Heatmap(
                 z=grid.values,
-                x=list(grid.columns),
+                x=x_labels,
                 y=list(grid.index),
-                zmin=0,
-                zmax=3,
-                colorscale=[
-                    [0.0, "#eeeeee"],
-                    [0.25, "#eeeeee"],
-                    [0.26, "#9ecae1"],
-                    [0.5, "#9ecae1"],
-                    [0.51, "#4292c6"],
-                    [0.75, "#4292c6"],
-                    [0.76, "#08306b"],
-                    [1.0, "#08306b"],
-                ],
+                zmin=-0.5,
+                zmax=3.5,
+                colorscale=scale,
                 showscale=False,
-                hovertemplate="%{y} / %{x}<extra></extra>",
+                xgap=3,
+                ygap=3,
+                customdata=[[STATES[v] for v in row] for row in grid.values],
+                hovertemplate="%{y} · %{x}: %{customdata}<extra></extra>",
             )
         )
-        fig.update_layout(height=max(300, 40 * len(grid)), yaxis_autorange="reversed")
-        st.plotly_chart(fig, width="stretch")
-        st.caption(
-            "Grey: nothing recorded. Light blue: offered. Mid blue: offered with uptake evidence. "
-            "Dark blue: offered with outcome evidence."
+        # Cell labels as annotations: white on the dark steps, near-black on the light ones.
+        for yi, borough in enumerate(grid.index):
+            for xi, label_ in enumerate(x_labels):
+                v = int(grid.values[yi][xi])
+                fig.add_annotation(
+                    x=label_,
+                    y=borough,
+                    text=short[v],
+                    showarrow=False,
+                    font={"size": 12, "color": text_colour[v]},
+                )
+        viz.style(fig, height=max(150, 64 * len(grid) + 70), legend=False)
+        fig.update_xaxes(showgrid=False, side="top", showline=False)
+        fig.update_yaxes(showgrid=False, showline=False, autorange="reversed")
+        st.plotly_chart(fig, width="stretch", theme=None, config={"displaylogo": False})
+        chips = "".join(
+            f'<span class="pill"><span class="swatch" style="background:{c}"></span>{s}</span>'
+            for c, s in zip(colours, STATES, strict=True)
+        )
+        st.markdown(chips, unsafe_allow_html=True)
+        table_view(
+            grid.rename(columns=CATEGORY_LABELS)
+            .map(lambda v: STATES[v])
+            .reset_index(names="Borough")
         )
 
 with tab_table:
     if services.empty:
         st.write("No rows yet.")
     else:
-        boroughs = st.multiselect("Borough", sorted(services["borough"].unique()))
-        cats = st.multiselect("Service category", sorted(services["service_category"].unique()))
+        f1, f2 = st.columns(2)
+        boroughs = f1.multiselect("Borough", sorted(services["borough"].unique()))
+        cats = f2.multiselect(
+            "Service category",
+            list(CATEGORY_LABELS),
+            format_func=CATEGORY_LABELS.get,
+        )
         view = services
         if boroughs:
             view = view[view["borough"].isin(boroughs)]
@@ -101,14 +167,15 @@ with tab_table:
                     "families_or_pregnant_specific",
                     "notes",
                 ]
-            ],
+            ].rename(columns=lambda c: c.replace("_", " ").capitalize()),
             hide_index=True,
+            width="stretch",
         )
 
 with tab_docs:
     docs = list_policy_documents()
     if docs.empty:
-        st.warning(
+        st.info(
             "No markdown policy documents yet. Put `.md` files in `policy/national/`, "
             "`policy/newham/` or `policy/comparators/<borough>/`."
         )
@@ -121,9 +188,7 @@ with tab_docs:
         st.markdown(path.read_text(encoding="utf-8"))
 
 with tab_brief:
-    brief = read_doc("docs/newham_evidence_brief.md")
-    st.markdown(brief or "`docs/newham_evidence_brief.md` not found.")
+    st.markdown(read_doc("docs/newham_evidence_brief.md") or "Evidence brief not found.")
 
 with tab_sources:
-    links = read_doc("docs/source_links.md")
-    st.markdown(links or "`docs/source_links.md` not found.")
+    st.markdown(read_doc("docs/source_links.md") or "Source list not found.")

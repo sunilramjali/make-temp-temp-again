@@ -39,6 +39,7 @@ def test_evidence_states_are_separate(tmp_path):
     assert out.loc[0, "offered"]
     assert not out.loc[0, "has_uptake_evidence"]
     assert not out.loc[0, "has_outcome_evidence"]
+    assert out.loc[0, "evidence_level"] == 1
 
 
 def test_sources_duplicate_rejected(tmp_path):

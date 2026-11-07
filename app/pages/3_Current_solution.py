@@ -1,34 +1,37 @@
 import streamlit as st
 
+import viz
 from components import (
-    DESCRIPTIVE,
     borough_names,
     caveat,
+    chart_title,
     compare_breakdown,
     doc_section,
+    fmt,
     latest_period,
     need_data,
+    page_header,
     pretty,
     source_footnote,
 )
 from ta_london.geography import NEWHAM_CODE
 
-st.set_page_config(page_title="Current solution", layout="wide")
-st.title("Where families are placed, and what Newham's policies offer")
-st.write(
-    "How families in temporary accommodation (TA) are housed now, how long they have been there, "
-    "and the policies that shape where they are placed."
+st.set_page_config(page_title="Current solution · TA in London", layout="wide")
+page_header(
+    "Where families are placed, and how they leave",
+    "How families in temporary accommodation (TA) are housed, how long they have been there, "
+    "how the homelessness duty ends, and what Newham's policies offer.",
 )
-st.caption(DESCRIPTIVE)
 
 df = need_data()
 if df is None:
     st.stop()
 
 others = st.multiselect(
-    "Add boroughs to compare",
+    "Compare with up to three other boroughs",
     [n for n in borough_names(df) if n != "Newham"],
     default=[],
+    max_selections=viz.MAX_EXTRA_AREAS,
 )
 areas = ["Newham", "London", "England", *others]
 
@@ -39,23 +42,21 @@ def point(indicator, breakdown="all", area=NEWHAM_CODE):
     return None if r.empty else r.iloc[0]
 
 
-oa = point("ta_households_out_of_area_share")
-oa_london = point("ta_households_out_of_area_share", area="E12000007")
-nightly = point("ta_families_by_accommodation_type_share", "nightly_paid")
-nightly_london = point("ta_families_by_accommodation_type_share", "nightly_paid", "E12000007")
-c1, c2 = st.columns(2)
-if oa is not None:
-    c1.metric(
-        "Newham TA households placed out of area",
-        f"{oa['value']:.1f}%",
-        help=f"London: {oa_london['value']:.1f}%" if oa_london is not None else None,
-    )
-if nightly is not None:
-    c2.metric(
-        "Newham families in nightly-paid accommodation",
-        f"{nightly['value']:.1f}%",
-        help=f"London: {nightly_london['value']:.1f}%" if nightly_london is not None else None,
-    )
+def tile(col, title, indicator, breakdown="all"):
+    r, london = point(indicator, breakdown), point(indicator, breakdown, "E12000007")
+    if r is not None:
+        col.metric(
+            title,
+            fmt(r["value"], r["unit"]),
+            help=f"London: {fmt(london['value'], london['unit'])}" if london is not None else None,
+        )
+
+
+c = st.columns(4)
+tile(c[0], "Families in nightly-paid", "ta_families_by_accommodation_type_share", "nightly_paid")
+tile(c[1], "Placed out of area", "ta_households_out_of_area_share")
+tile(c[2], "Duties ended (quarter)", "main_duty_ended_total")
+tile(c[3], "Ended via private renting", "main_duty_ended_by_reason_share", "prs_offer_accepted")
 
 tabs = st.tabs(
     [
@@ -68,7 +69,10 @@ tabs = st.tabs(
 )
 
 with tabs[0]:
-    st.subheader("Families with children, by type of accommodation")
+    chart_title(
+        "Families with children in TA, by type of accommodation",
+        "Nightly-paid, privately managed homes are the main form of TA for Newham families.",
+    )
     compare_breakdown(
         df,
         "ta_families_by_accommodation_type_share",
@@ -77,12 +81,15 @@ with tabs[0]:
     )
     caveat("ta_families_by_accommodation_type")
     source_footnote(df[df.indicator == "ta_families_by_accommodation_type"])
-    st.subheader("Out of area")
+    chart_title("Households in TA placed in another council's area", "")
     compare_breakdown(df, "ta_households_out_of_area_share", areas)
     caveat("ta_households_out_of_area_share")
 
 with tabs[1]:
-    st.subheader("Time families have spent in TA, by accommodation type")
+    chart_title(
+        "How long families have been in TA, within each accommodation type",
+        "Most Newham families in nightly-paid TA have been there more than a year.",
+    )
     types = [
         "nightly_paid",
         "la_ha_stock",
@@ -110,7 +117,7 @@ with tabs[1]:
         "(shown as 'no value')."
     )
     caveat("ta_families_length_of_stay")
-    st.subheader("Median days in TA, all households still in TA, by type")
+    chart_title("Median days in TA, by type", "All households still in TA at 31 March 2026.")
     med = latest_period(
         df[(df.indicator == "ta_length_of_stay_median_days") & df.area_name.isin(areas)]
     )
@@ -122,7 +129,12 @@ with tabs[1]:
     source_footnote(df[df.indicator == "ta_families_length_of_stay"])
 
 with tabs[2]:
-    st.subheader("Why the main homelessness duty ended, January to March 2026")
+    chart_title(
+        "Why the main homelessness duty ended, January to March 2026",
+        "In this quarter, private rented offers ended more of Newham's 82 duties than social "
+        "housing offers; in London and England it was the other way round. One quarter, small "
+        "numbers.",
+    )
     st.write(
         "Ending the main duty is the main way households leave TA. This is one quarter's flow, "
         "so small boroughs can swing a lot between quarters."
@@ -158,7 +170,7 @@ with tabs[2]:
     source_footnote(df[df.indicator == "main_duty_ended_by_reason"])
 
 with tabs[3]:
-    st.subheader("Where out-of-area households are placed (31 March 2026)")
+    chart_title("Where out-of-area households are placed", "Counts at 31 March 2026, by region.")
     dest = latest_period(
         df[(df.indicator == "ta_out_of_area_by_destination") & df.area_name.isin(areas)]
     )
@@ -168,7 +180,7 @@ with tabs[3]:
         st.dataframe(piv.fillna(0).astype(int), width="stretch")
         st.caption("Counts of households by destination region (TA9).")
     caveat("ta_out_of_area_by_destination")
-    st.subheader("Out-of-area households by type of accommodation")
+    chart_title("Out-of-area households by type of accommodation", "")
     compare_breakdown(
         df,
         "ta_out_of_area_by_accommodation_type_share",
@@ -183,7 +195,7 @@ with tabs[3]:
             "no_accommodation_secured",
         ],
     )
-    st.subheader("Out-of-area households by household type")
+    chart_title("Out-of-area households by household type", "")
     compare_breakdown(
         df,
         "ta_out_of_area_by_composition_share",

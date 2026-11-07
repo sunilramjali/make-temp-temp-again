@@ -1,0 +1,13 @@
+# Dashboard theme. Accent = slot 1 of the validated chart palette (app/viz.py).
+# Pinned to light so the page and the charts always match (charts read theme.base).
+# Dark chart colours are defined and validated in app/viz.py for when this is changed.
+[theme]
+base = "light"
+primaryColor = "#2a78d6"
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
