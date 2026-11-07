@@ -11,7 +11,7 @@ Draft for team review. Written 2026-11-07 (sunil session). Findings are **descri
 1. **Scale.** On 31 March 2026 Newham had **7,561 households in TA**, the most of any London borough and **59.8 per 1,000 households** (London 21.1). Of these, 5,453 were households with children (10,952 children).
 2. **Who.** Newham's TA population is more family-heavy than London's (72% of households have dependent children vs 67%), and its families are less often single-adult (47% vs 56%). Among households whose ethnicity is recorded, 41% of main applicants are Asian (23% Bangladeshi), 33% Black and 17% White. But **ethnicity is not recorded for 30%** of Newham's TA households, so treat these shares with care.
 3. **Where and how long.** 63% of Newham's families in TA are in nightly-paid, privately managed self-contained accommodation (London 49%). 72% of those families have been there a year or more, and 843 families for five years or more.
-4. **Social housing.** 41,223 households were on Newham's housing register at 31 March 2025 (highest in London, up 58% since 2018). Newham made **711 new social lettings in 2024/25**, down from 966 the year before. Social-housing churn is 1.4% of stock a year, among the lowest in London.
+4. **Social housing.** 41,223 households were on Newham's housing register at 31 March 2025 (highest in London, up 58% since 2018). Newham made **711 new social lettings in 2024/25**, down from 966 the year before. Social-housing churn is 1.4% of stock a year, the lowest of the boroughs that submitted full CORE data (Camden and Greenwich did not submit this year, so their rates are unreliable).
 5. **Current solution.** Newham's stated approach is to move families into private rented homes, increasingly outside the borough. Its 2025 placements policy says it needs to procure accommodation outside London to keep it affordable. I found **no published evidence of uptake or outcomes** for the schemes in the policies. That is a gap, not a finding that they don't work.
 
 ---
@@ -71,7 +71,7 @@ Shares are of households with a recorded ethnicity (Newham n = 5,334). With 30% 
 
 ### Pregnant households
 
-**Not identified in any of TA1 to TA8.** The TA tables give no pregnancy field. Do not proxy it. Logged in `docs/evidence_gaps.md`.
+**Not identified in any of TA1 to TA8.** The TA tables give no pregnancy field. Do not proxy it. The nearest measure is MHCLG table MD3 (priority need of households newly owed the main duty): see section 8. Logged in `docs/evidence_gaps.md`.
 
 ---
 
@@ -170,13 +170,13 @@ Short answer from the figures: **supply is small compared with demand on every m
 |---|---:|---:|---:|
 | Newham new social lettings (all types) | 930 | 966 | **711** |
 
-- 711 is 2.5% of London's 28,299 lets in 2024/25. Lambeth made 1,856, Hackney 1,662 and Tower Hamlets 1,636.
+- The 33 boroughs total 28,299 in the table, but **Barnet, Camden, Greenwich and Wandsworth did not submit CORE data in 2024/25** (table note 10), so that total and any ranking are incomplete. Newham did submit. Highest among the others: Lambeth 1,856, Hackney 1,662, Tower Hamlets 1,636. The figures are unweighted and as reported (note 9).
 - Roughly 58 households on the register for each letting made in a year, and the TA caseload (7,561) is about 10.6 times annual lettings. These compare numbers from different dates and populations (many lettings go to people not in TA), so use them only to show scale.
 - The council's "around 600 properties a year" in older consultation slides is not a current official figure. The CORE figure above replaces it.
 
 ### Churn and the rent gap (CORE, Table 1e)
 
-- **448 social re-lets from 31,666 homes: 1.4% of stock** a year. London's boroughs range from 1.2% (Greenwich) to 5.0% (Richmond). Newham is tied with Camden for second lowest.
+- **448 social re-lets from 31,666 homes: 1.4% of stock** a year. Among boroughs that submitted CORE data in 2024/25, Newham has the lowest rate (next: Southwark 1.7%; highest: Richmond upon Thames 5.0%). Greenwich (1.2%) and Camden (1.4%) did not submit, so their rates are under-counts and can't be compared.
 - Average weekly **social re-let rent £160.26** vs **market rent £390.23** (41.1%), per the table's rent source. The gap is about £230 a week, which is the context for families trying to leave TA by renting privately.
 
 ### What I could not get
@@ -223,3 +223,25 @@ From the 2025 Housing Allocation Scheme unless stated. Each is a rule on paper. 
 3. Earlier quarters of the MHCLG tables for a Newham trend.
 4. Private rents and LHA (Phase 6) to put numbers on the affordability barrier.
 5. GR's policy documents and the agreed `service_category` list, so these Newham policies can be entered in `services_map.csv` as "offered" rows, with uptake and outcome kept blank until evidence turns up.
+
+---
+
+## 8. Added from the uploaded datasets (later on 2026-11-07)
+
+Sources: further sheets of the same MHCLG file (TA9, MD1 to MD3), Trust for London charts T87 and T88, and the GLA council homes statistics. All are in `data/sources.csv` and on the dashboard.
+
+**London over time (T87, Trust for London from MHCLG).** London households in TA, average of four quarters: **48,678 in 2002, 74,860 in 2025**. Nightly-paid self-contained accommodation grew from 3,655 to 34,168 households and is now the largest type. There is a **series break at 2018/2019** (MHCLG changed collection), so compare within each side of the break.
+
+**Boroughs in 2025 (T88, average of four quarters).** Newham had **59.1 households in TA per 1,000**, the highest in London (Westminster 37.3, Lambeth 32.3), on Trust for London's denominator. This is a different measure from MHCLG's 31 March 2026 snapshot (59.8), so the two are not a trend.
+
+**How households leave TA (MD2, one quarter, Jan to Mar 2026).** Newham ended the main duty for 82 households: **36 (44%) by an accepted private rented offer, 25 (31%) by an accepted social housing offer**, and 11 (13%) left TA voluntarily. Across London, 62% of duty ends were social housing offers and 18% private rented; in England, 70% and 9%. This fits Newham's stated approach (section 4) of ending the duty mainly through private renting. It is one quarter, with small numbers, so it may not be typical.
+
+**Pregnancy as a priority need (MD3, one quarter).** Of 180 Newham households newly owed the main duty, **10 (5.6%) had pregnancy recorded as their priority need** (London 2.7%, England 2.8%). This is a flow of new acceptances, not households in TA, and it undercounts: a pregnant woman in a family recorded under "dependent children" is not counted.
+
+**Where out-of-area households are (TA9, 31 March 2026).** Of Newham's 3,173 out-of-area households, 2,758 were elsewhere in London, 219 in the East of England and 193 in the South East. 82% were in nightly-paid accommodation and 14% in private sector accommodation.
+
+**New council homes (GLA programmes only).** Newham completed 1,457 and started 2,049 council homes through GLA programmes from September 2018 to March 2026. In 2025-26 it completed 379, second in London after Brent (549), out of 3,503 across London. Other council homes are reported by MHCLG, so this is part of new supply, not all of it.
+
+**Services map.** `policy/services_map.csv` now has 11 Newham rows across the six service categories in the README, each citing its source page. Uptake is filled only where a document or dataset reports it (MD2 duty ends, Homefinder). No outcome evidence was found for any service.
+
+**Not usable:** the LAHS 2025-26 file is the blank return form (no figures). It is kept for definitions only.

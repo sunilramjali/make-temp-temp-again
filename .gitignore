@@ -8,3 +8,7 @@ __pycache__/
 CLAUDE.local.md
 outputs/*/*
 !outputs/*/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep

@@ -3,13 +3,24 @@
 What a borough *offers* is kept separate from evidence of *uptake* or *outcomes*. A row can have
 an offer with no uptake or outcome evidence; the three states are derived, never assumed.
 
-The allowed `service_category` values are not fixed yet. Pass `allowed_categories` once the team
-has agreed the list.
+`service_category` must be one of SERVICE_CATEGORIES (the README's step 3 list) unless another
+list is passed.
 """
 
 import pandas as pd
 
 from ta_london.paths import POLICY, SERVICES_MAP
+
+# Categories from the README, Methodology step 3 ("prevention, PRS access, landlord incentives,
+# deposits, allocations, tenancy support"). Add to this list only by team agreement.
+SERVICE_CATEGORIES = [
+    "prevention",
+    "prs_access",
+    "landlord_incentives",
+    "deposits",
+    "allocations",
+    "tenancy_support",
+]
 
 REQUIRED_COLUMNS = [
     "borough",
@@ -27,7 +38,7 @@ REQUIRED_COLUMNS = [
 ]
 
 
-def load_services(path=SERVICES_MAP, allowed_categories=None) -> pd.DataFrame:
+def load_services(path=SERVICES_MAP, allowed_categories=tuple(SERVICE_CATEGORIES)) -> pd.DataFrame:
     df = pd.read_csv(path, dtype=str).fillna("")
     missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing:
