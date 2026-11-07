@@ -72,6 +72,22 @@
   source_id: mhclg_la_detailed_2026q1
   caveats: Snapshot at 31 March 2026 (one quarter, not a trend). The out-of-area count (note 36) may include
     households owed a duty with no accommodation secured, so the share can slightly overstate placements.
+- name: ta_households_pct_of_households
+  label: Households in TA as % of all households
+  definition: Households in temporary accommodation divided by all households in the area, as a percentage.
+    Both from the same MHCLG table (TA1); the denominator is MHCLG's household projection (note 5).
+  unit: percent
+  source_id: mhclg_la_detailed_2026q1
+  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). The same as MHCLG's per-1,000 rate divided
+    by 10. The denominator is a 2022-based projection, not a count.
+- name: ta_households_with_children_pct_of_households
+  label: Households in TA with children as % of all households
+  definition: Households in TA with dependent children divided by all households in the area (any type),
+    as a percentage. MHCLG TA1 and its household projection.
+  unit: percent
+  source_id: mhclg_la_detailed_2026q1
+  caveats: Snapshot at 31 March 2026. The denominator is all households, not households with children
+    (no such count is in the data), so this is not 'the share of families in TA'.
 - name: ta_households_by_accommodation_type
   label: Households in TA by accommodation type
   definition: 'All households in TA split by type: B&B, nightly paid self-contained, hostel, private sector,
@@ -156,7 +172,9 @@
   definition: TA8 split by age 0 to 17.
   unit: children
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: 'Snapshot at 31 March 2026 (one quarter, not a trend). Age 0 counts are much lower than other
+    ages in every London borough (all boroughs: 2,021 aged 0 vs 4,619 aged 2; Newham 130 vs 506). The
+    source does not say why, so treat infant counts with care.'
 - name: housing_register_households
   label: Households on the housing register (waiting list)
   definition: Households on the local authority housing register at the reference date (Live Table 600).
@@ -420,3 +438,17 @@
   caveats: Only homes in GLA programmes. Other council homes are in MHCLG statistics (GLA note), so this
     is not total supply. 2018-19 runs from September 2018 only. The partial current year (2026-27, to
     June 2026) is left out, as is the 'Multiple London Boroughs' row.
+- name: rent_gap_weekly
+  label: Weekly gap between private market rent and social re-let rent
+  definition: Average weekly market rent minus average weekly social re-let rent (CORE Table 1e).
+  unit: gbp_per_week
+  source_id: mhclg_core_tenancies_2425
+  caveats: 2024/25 only. Geometric means, not matched by property size (note 15).
+- name: ta_children_under_5
+  label: Children under 5 in TA
+  definition: People aged 0 to 4 in temporary accommodation, the sum of single-year ages in TA8.
+  unit: children
+  source_id: mhclg_la_detailed_2026q1
+  caveats: Snapshot at 31 March 2026. Age 0 counts are much lower than other ages in every London
+    borough; the source does not say why.
+

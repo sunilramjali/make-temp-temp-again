@@ -101,11 +101,53 @@ def test_out_of_area_share():
     validate(out)
 
 
+def test_pct_of_households_uses_thousands_denominator():
+    df = pd.concat(
+        [
+            rows("ta_households", {"all": (7561, "ok")}),
+            rows("households_in_area", {"all": (126.48, "ok")}, unit="thousand_households"),
+        ],
+        ignore_index=True,
+    )
+    out = indicators.add_ratios(df)
+    assert round(share(out, "ta_households_pct_of_households", "all")["value"], 2) == 5.98
+    validate(out)
+
+
+def test_ratio_with_suppressed_input_is_suppressed():
+    df = pd.concat(
+        [
+            rows("ta_households_out_of_area", {"all": (math.nan, "suppressed")}),
+            rows("ta_households", {"all": (40, "ok")}),
+        ],
+        ignore_index=True,
+    )
+    r = share(indicators.add_ratios(df), "ta_households_out_of_area_share", "all")
+    assert math.isnan(r["value"]) and r["value_status"] == "suppressed"
+
+
+def test_derived_rent_gap_and_under_5():
+    rents = pd.concat(
+        [
+            rows("market_rent_weekly", {"all": (390.23, "ok")}, unit="gbp_per_week"),
+            rows("social_relet_rent_weekly", {"all": (160.26, "ok")}, unit="gbp_per_week"),
+        ],
+        ignore_index=True,
+    )
+    out = indicators.add_derived(rents)
+    assert round(share(out, "rent_gap_weekly", "all")["value"], 2) == 229.97
+    ages = rows("ta_children_by_age", {f"age_{a}": (10, "ok") for a in range(18)}, unit="children")
+    out = indicators.add_derived(ages)
+    assert share(out, "ta_children_under_5", "all")["value"] == 50
+    validate(out)
+
+
 def test_every_loader_indicator_is_in_the_dictionary():
     produced = {spec[1] for specs in mhclg_ta.SPECS.values() for spec in specs}
     produced |= {"housing_register_households", "social_lettings_total", "social_lettings_by_type"}
     produced |= {ind for _, ind, _ in lettings._1E_SPECS}
-    produced |= {"ta_households_out_of_area_share"}
+    produced |= {name for name, *_ in indicators.RATIOS}
+    produced |= {"rent_gap_weekly", "ta_children_under_5"}
     from ta_london.ingest import gla_council_homes, trust_for_london
 
     produced |= {ind for _, ind, _ in trust_for_london._T87_COLUMNS}

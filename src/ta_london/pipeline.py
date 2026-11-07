@@ -85,7 +85,7 @@ def run() -> pd.DataFrame:
         _write(df, INTERIM / f"{name}.parquet")
 
     df = pd.concat(parts.values(), ignore_index=True)
-    df = indicators.add_ratios(indicators.add_shares(df))
+    df = indicators.add_derived(indicators.add_ratios(indicators.add_shares(df)))
     assert_unique(df)
     sources.assert_registered(df["source_id"].unique())
     indicators.assert_in_dictionary(df)

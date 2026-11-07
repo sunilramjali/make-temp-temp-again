@@ -1,6 +1,6 @@
 # Newham evidence brief: who is in temporary accommodation, what is offered, is social housing enough
 
-Draft for team review. Written 2026-11-07 (sunil session). Findings are **descriptive**: they show patterns and do not say what causes them. All source links, and how far each was checked, are in [`source_links.md`](source_links.md).
+Final draft, 7 November 2026. Findings are **descriptive**: they show patterns and do not say what causes them. Every figure comes from a published source; links, and how far each was checked, are in [`source_links.md`](source_links.md). The same figures are in the dashboard (`app/`).
 
 **Scope:** temporary accommodation (TA) in Newham, compared with London and England. The project's focus group is households with dependent children and pregnant women.
 
@@ -8,11 +8,11 @@ Draft for team review. Written 2026-11-07 (sunil session). Findings are **descri
 
 ## 1. Headlines
 
-1. **Scale.** On 31 March 2026 Newham had **7,561 households in TA**, the most of any London borough and **59.8 per 1,000 households** (London 21.1). Of these, 5,453 were households with children (10,952 children).
+1. **Scale.** On 31 March 2026 Newham had **7,561 households in TA**, the most of any London borough: **6.0% of all households**, about 1 in 17 (London 2.1%, England 0.6%). Of these, 5,453 were households with children (10,952 children).
 2. **Who.** Newham's TA population is more family-heavy than London's (72% of households have dependent children vs 67%), and its families are less often single-adult (47% vs 56%). Among households whose ethnicity is recorded, 41% of main applicants are Asian (23% Bangladeshi), 33% Black and 17% White. But **ethnicity is not recorded for 30%** of Newham's TA households, so treat these shares with care.
 3. **Where and how long.** 63% of Newham's families in TA are in nightly-paid, privately managed self-contained accommodation (London 49%). 72% of those families have been there a year or more, and 843 families for five years or more.
 4. **Social housing.** 41,223 households were on Newham's housing register at 31 March 2025 (highest in London, up 58% since 2018). Newham made **711 new social lettings in 2024/25**, down from 966 the year before. Social-housing churn is 1.4% of stock a year, the lowest of the boroughs that submitted full CORE data (Camden and Greenwich did not submit this year, so their rates are unreliable).
-5. **Current solution.** Newham's stated approach is to move families into private rented homes, increasingly outside the borough. Its 2025 placements policy says it needs to procure accommodation outside London to keep it affordable. I found **no published evidence of uptake or outcomes** for the schemes in the policies. That is a gap, not a finding that they don't work.
+5. **Current solution.** Newham's stated approach is to move families into private rented homes, increasingly outside the borough. Its 2025 placements policy says it needs to procure accommodation outside London to keep it affordable. Uptake evidence exists for only 3 of 11 recorded services (counts of duties ended, lettings and Homefinder moves), and **no published evidence of outcomes** was found for any. That is a gap, not a finding that they don't work. In January to March 2026, more Newham duties ended through private rented offers (36) than social housing offers (25), out of 82; one quarter, so possibly not typical (section 8).
 
 ---
 
@@ -45,7 +45,8 @@ Newham's main applicants skew somewhat older than London's: 43% are 45 or over, 
 
 ### Children (TA1 and TA8)
 
-- TA1 reports **10,952 children** in Newham TA. TA8 reports **10,355 people aged under 18**. The two tables use different counts and I have not reconciled them.
+- TA1 reports **10,952 children** in Newham TA, about 2.0 per family (the same as London and England). TA8 reports **10,355 people aged under 18**. The two tables are separate MHCLG counts and are not reconciled here.
+- Very few infants are recorded: 130 aged 0 against 506 aged 2 in Newham. The same pattern appears in every London borough (2,021 against 4,619 across all 33), and the source does not explain it, so infant counts need care.
 - By age (TA8): 2,115 aged 0-4, 3,887 aged 5-10, 3,141 aged 11-15, 1,212 aged 16-17. Many are at school age, which matters for the placement policy's school-related criteria (section 4).
 
 ### Ethnicity of main applicant (sheet TA6)
@@ -90,7 +91,7 @@ Sources: TA1, TA4c (households with dependent children), TA7 (average length of 
 | B&B (incl. shared annexes) | 8 (0.1%) | 440 (0.9%) | 1,900 (2.2%) |
 | Hostel | 1 | 1,780 | 3,520 |
 
-TA1 shows 6 Newham families with children in B&B for more than six weeks. The statutory limit for families is six weeks. The column label is cut off in my read of the sheet, so check it in the file before quoting.
+TA1 shows 6 Newham families with children resident in B&B for more than six weeks, the statutory limit for families; none of them was recorded as pending a review or appeal.
 
 ### Length of stay for families (TA4c)
 
@@ -143,7 +144,7 @@ This section records what is **offered** in published policy. Evidence of **upta
 
 ### Cabinet decision, 23 October 2025 (document 4, third-party summary, unverified)
 
-Per the summary page: Cabinet approved a revised Housing Placement Policy; up to £1.7m extra for the Homelessness Response Programme; a "comprehensive review" of the Social Housing Allocations Policy; and an "extensive programme of review of all households in TA". Its stated objectives include "increased use of affordable, lawful out-of-borough options" and expanding access to the private rented sector. **TA household numbers and cost figures from this decision are not yet checked.** News reports quote £52.4m for a 2025/26 TA budget gap, but I have not seen that in a council document.
+Per the summary page: Cabinet approved a revised Housing Placement Policy; up to £1.7m extra for the Homelessness Response Programme; a "comprehensive review" of the Social Housing Allocations Policy; and an "extensive programme of review of all households in TA". Its stated objectives include "increased use of affordable, lawful out-of-borough options" and expanding access to the private rented sector. **TA household numbers and cost figures from this decision are not yet checked.** News reports quote £52.4m for a 2025/26 TA budget gap; that figure was not found in a council document.
 
 ### Evidence of uptake and outcomes
 
@@ -179,7 +180,7 @@ Short answer from the figures: **supply is small compared with demand on every m
 - **448 social re-lets from 31,666 homes: 1.4% of stock** a year. Among boroughs that submitted CORE data in 2024/25, Newham has the lowest rate (next: Southwark 1.7%; highest: Richmond upon Thames 5.0%). Greenwich (1.2%) and Camden (1.4%) did not submit, so their rates are under-counts and can't be compared.
 - Average weekly **social re-let rent £160.26** vs **market rent £390.23** (41.1%), per the table's rent source. The gap is about £230 a week, which is the context for families trying to leave TA by renting privately.
 
-### What I could not get
+### Not available in the data used
 
 - The share of Newham's lettings that went to homeless households or people in TA (in CORE's tenant tables, not opened).
 - Waiting-list numbers by priority group.
@@ -209,7 +210,7 @@ From the 2025 Housing Allocation Scheme unless stated. Each is a rule on paper. 
 
 ---
 
-## 7. Gaps, caveats and next steps
+## 7. Limitations and further work
 
 **Caveats**
 - One quarter's snapshot, not a trend. Earlier MHCLG releases would give the time series.
@@ -217,7 +218,7 @@ From the 2025 Housing Allocation Scheme unless stated. Each is a rule on paper. 
 - The policy documents are read from PDF text. Layout-dependent lists (placement zones) need a check against the PDF.
 - The cabinet decision was seen only through a third-party summary.
 
-**To check next**
+**Further work**
 1. Open the Oct 2025 Cabinet report and appendices (TA numbers, costs, the draft placement policy, equality impact assessment).
 2. CORE tenant tables or dashboard for lettings to homeless households in Newham.
 3. Earlier quarters of the MHCLG tables for a Newham trend.
@@ -226,7 +227,7 @@ From the 2025 Housing Allocation Scheme unless stated. Each is a rule on paper. 
 
 ---
 
-## 8. Added from the uploaded datasets (later on 2026-11-07)
+## 8. Further evidence: exits, pregnancy, out-of-area placements, trend and supply
 
 Sources: further sheets of the same MHCLG file (TA9, MD1 to MD3), Trust for London charts T87 and T88, and the GLA council homes statistics. All are in `data/sources.csv` and on the dashboard.
 

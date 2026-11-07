@@ -56,6 +56,11 @@ def add_evidence_states(df: pd.DataFrame) -> pd.DataFrame:
     out["offered"] = out["offered_source"].str.strip() != ""
     out["has_uptake_evidence"] = out["uptake_evidence"].str.strip() != ""
     out["has_outcome_evidence"] = out["outcome_evidence"].str.strip() != ""
+    # Strongest evidence recorded: 0 none, 1 offered, 2 uptake evidence, 3 outcome evidence.
+    out["evidence_level"] = 0
+    out.loc[out["offered"], "evidence_level"] = 1
+    out.loc[out["offered"] & out["has_uptake_evidence"], "evidence_level"] = 2
+    out.loc[out["offered"] & out["has_outcome_evidence"], "evidence_level"] = 3
     return out
 
 
