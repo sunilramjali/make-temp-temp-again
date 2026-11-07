@@ -106,6 +106,12 @@ def test_every_loader_indicator_is_in_the_dictionary():
     produced |= {"housing_register_households", "social_lettings_total", "social_lettings_by_type"}
     produced |= {ind for _, ind, _ in lettings._1E_SPECS}
     produced |= {"ta_households_out_of_area_share"}
+    from ta_london.ingest import gla_council_homes, trust_for_london
+
+    produced |= {ind for _, ind, _ in trust_for_london._T87_COLUMNS}
+    produced |= {ind for _, ind, _ in trust_for_london._T88_COLUMNS}
+    produced |= {"council_homes_started_gla", "council_homes_completed_gla"}
+    assert gla_council_homes.SHEET
     produced |= {f"{i}_share" for i in indicators.SHARE_INDICATORS}
     produced |= {f"{i}_share_of_known" for i in indicators.SHARE_OF_KNOWN}
     assert produced <= set(indicators.load_dictionary())

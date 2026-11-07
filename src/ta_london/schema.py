@@ -16,7 +16,9 @@ COLUMNS = [
     "source_id",
 ]
 
-PERIOD_TYPES = ["quarter_end", "financial_year", "snapshot"]
+# quarter_end: count on the last day of a quarter. quarter: flow during a quarter (e.g. exits).
+# calendar_year_average: average of the four quarters of a calendar year (Trust for London).
+PERIOD_TYPES = ["quarter_end", "quarter", "financial_year", "snapshot", "calendar_year_average"]
 VALUE_STATUSES = ["ok", "suppressed", "missing", "estimated"]
 AREA_CODE_PATTERN = r"^(E0[6-9]\d{6}|E1[0-2]\d{6}|E92000001)$"
 

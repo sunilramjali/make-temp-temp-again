@@ -25,6 +25,12 @@ SHARE_INDICATORS = [
     "ta_families_by_accommodation_type",
     "ta_families_length_of_stay",
     "ta_children_by_age",
+    "ta_out_of_area_by_accommodation_type",
+    "ta_out_of_area_by_composition",
+    "relief_end_decisions",
+    "main_duty_ended_by_reason",
+    "main_duty_owed_by_priority_need",
+    "ta_households_by_accommodation_type_avg4q",
 ]
 # Also reported as a share of households whose ethnicity is known.
 SHARE_OF_KNOWN = ["ta_households_by_ethnicity", "ta_households_by_ethnicity_detail"]

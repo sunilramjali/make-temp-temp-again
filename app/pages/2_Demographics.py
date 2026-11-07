@@ -60,7 +60,16 @@ for col, (ind, fmt) in zip(
             help=f"London: {fmt.format(london['value'])}" if london is not None else None,
         )
 
-tabs = st.tabs(["Household type", "Age of main applicant", "Ethnicity", "Children", "Duty owed"])
+tabs = st.tabs(
+    [
+        "Household type",
+        "Age of main applicant",
+        "Ethnicity",
+        "Children",
+        "Duty owed",
+        "Pregnancy (priority need)",
+    ]
+)
 
 with tabs[0]:
     st.subheader("Household composition")
@@ -141,7 +150,35 @@ with tabs[4]:
     caveat("ta_households_by_duty")
     source_footnote(df[df.indicator == "ta_households_by_duty"])
 
-st.info(
-    "**Pregnant households are not identified in these tables.** There is no pregnancy field in "
-    "the MHCLG TA tables, so they can't be shown here. See `docs/evidence_gaps.md`."
-)
+with tabs[5]:
+    st.subheader("New main duty acceptances by priority need, January to March 2026")
+    st.warning(
+        "**This is not a count of pregnant households in TA.** The TA tables have no pregnancy "
+        "field. MHCLG table MD3 records the *priority need* of households newly owed the main "
+        "duty in the quarter. 'Pregnant' counts only households where pregnancy is the recorded "
+        "reason; a pregnant woman in a family recorded under 'dependent children' is not counted. "
+        "So this is an undercount of a flow, not a stock."
+    )
+    preg = point("main_duty_owed_by_priority_need", "pregnant")
+    preg_london = point("main_duty_owed_by_priority_need", "pregnant", "E12000007")
+    total = point("main_duty_owed_total")
+    if preg is not None and total is not None:
+        st.metric(
+            "Newham: newly owed the main duty, priority need 'pregnant' (quarter)",
+            f"{preg['value']:,.0f} of {total['value']:,.0f}",
+            help=f"London: {preg_london['value']:,.0f}" if preg_london is not None else None,
+        )
+    compare_breakdown(
+        df,
+        "main_duty_owed_by_priority_need_share",
+        areas,
+        order=[
+            "dependent_children",
+            "children_other_priority_need",
+            "pregnant",
+            "vulnerable",
+            "emergency",
+        ],
+    )
+    caveat("main_duty_owed_by_priority_need")
+    source_footnote(df[df.indicator == "main_duty_owed_by_priority_need"])

@@ -71,7 +71,7 @@ Shares are of households with a recorded ethnicity (Newham n = 5,334). With 30% 
 
 ### Pregnant households
 
-**Not identified in any of TA1 to TA8.** The TA tables give no pregnancy field. Do not proxy it. Logged in `docs/evidence_gaps.md`.
+**Not identified in any of TA1 to TA8.** The TA tables give no pregnancy field. Do not proxy it. The nearest measure is MHCLG table MD3 (priority need of households newly owed the main duty): see section 8. Logged in `docs/evidence_gaps.md`.
 
 ---
 
@@ -223,3 +223,25 @@ From the 2025 Housing Allocation Scheme unless stated. Each is a rule on paper. 
 3. Earlier quarters of the MHCLG tables for a Newham trend.
 4. Private rents and LHA (Phase 6) to put numbers on the affordability barrier.
 5. GR's policy documents and the agreed `service_category` list, so these Newham policies can be entered in `services_map.csv` as "offered" rows, with uptake and outcome kept blank until evidence turns up.
+
+---
+
+## 8. Added from the uploaded datasets (later on 2026-11-07)
+
+Sources: further sheets of the same MHCLG file (TA9, MD1 to MD3), Trust for London charts T87 and T88, and the GLA council homes statistics. All are in `data/sources.csv` and on the dashboard.
+
+**London over time (T87, Trust for London from MHCLG).** London households in TA, average of four quarters: **48,678 in 2002, 74,860 in 2025**. Nightly-paid self-contained accommodation grew from 3,655 to 34,168 households and is now the largest type. There is a **series break at 2018/2019** (MHCLG changed collection), so compare within each side of the break.
+
+**Boroughs in 2025 (T88, average of four quarters).** Newham had **59.1 households in TA per 1,000**, the highest in London (Westminster 37.3, Lambeth 32.3), on Trust for London's denominator. This is a different measure from MHCLG's 31 March 2026 snapshot (59.8), so the two are not a trend.
+
+**How households leave TA (MD2, one quarter, Jan to Mar 2026).** Newham ended the main duty for 82 households: **36 (44%) by an accepted private rented offer, 25 (31%) by an accepted social housing offer**, and 11 (13%) left TA voluntarily. Across London, 62% of duty ends were social housing offers and 18% private rented; in England, 70% and 9%. This fits Newham's stated approach (section 4) of ending the duty mainly through private renting. It is one quarter, with small numbers, so it may not be typical.
+
+**Pregnancy as a priority need (MD3, one quarter).** Of 180 Newham households newly owed the main duty, **10 (5.6%) had pregnancy recorded as their priority need** (London 2.7%, England 2.8%). This is a flow of new acceptances, not households in TA, and it undercounts: a pregnant woman in a family recorded under "dependent children" is not counted.
+
+**Where out-of-area households are (TA9, 31 March 2026).** Of Newham's 3,173 out-of-area households, 2,758 were elsewhere in London, 219 in the East of England and 193 in the South East. 82% were in nightly-paid accommodation and 14% in private sector accommodation.
+
+**New council homes (GLA programmes only).** Newham completed 1,457 and started 2,049 council homes through GLA programmes from September 2018 to March 2026. In 2025-26 it completed 379, second in London after Brent (549), out of 3,503 across London. Other council homes are reported by MHCLG, so this is part of new supply, not all of it.
+
+**Services map.** `policy/services_map.csv` now has 11 Newham rows across the six service categories in the README, each citing its source page. Uptake is filled only where a document or dataset reports it (MD2 duty ends, Homefinder). No outcome evidence was found for any service.
+
+**Not usable:** the LAHS 2025-26 file is the blank return form (no figures). It is kept for definitions only.

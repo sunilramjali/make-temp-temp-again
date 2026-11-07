@@ -37,7 +37,15 @@ st.warning(
     "is a different source (a council return) and does not have this gap."
 )
 
-tabs = st.tabs(["Housing register", "New lettings", "Churn and rents", "Barriers to entry"])
+tabs = st.tabs(
+    [
+        "Housing register",
+        "New lettings",
+        "New council homes (GLA)",
+        "Churn and rents",
+        "Barriers to entry",
+    ]
+)
 
 with tabs[0]:
     trend(df, "housing_register_households", areas)
@@ -63,6 +71,18 @@ with tabs[1]:
     source_footnote(lets)
 
 with tabs[2]:
+    st.write(
+        "Council homes started and completed through GLA programmes. Other council homes are in "
+        "MHCLG statistics, so this is part of new supply, not all of it."
+    )
+    trend(df, "council_homes_completed_gla", areas)
+    trend(df, "council_homes_started_gla", areas)
+    done = df[df.indicator == "council_homes_completed_gla"]
+    ranked_bar(done[done.period_end == done.period_end.max()], "council_homes_completed_gla")
+    caveat("council_homes_completed_gla")
+    source_footnote(done)
+
+with tabs[3]:
     churn = df[(df.indicator == "social_relet_rate") & (df.breakdown == "all")]
     ranked_bar(churn, "social_relet_rate")
     st.caption(
@@ -96,7 +116,7 @@ with tabs[2]:
     caveat("market_rent_weekly")
     source_footnote(churn)
 
-with tabs[3]:
+with tabs[4]:
     section = doc_section("docs/newham_evidence_brief.md", "6.")
     if section:
         st.markdown(section)

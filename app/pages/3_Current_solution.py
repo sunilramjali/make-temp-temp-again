@@ -57,7 +57,15 @@ if nightly is not None:
         help=f"London: {nightly_london['value']:.1f}%" if nightly_london is not None else None,
     )
 
-tabs = st.tabs(["Accommodation type", "Length of stay", "Policies in brief"])
+tabs = st.tabs(
+    [
+        "Accommodation type",
+        "Length of stay",
+        "How households leave TA",
+        "Out of area",
+        "Policies in brief",
+    ]
+)
 
 with tabs[0]:
     st.subheader("Families with children, by type of accommodation")
@@ -114,6 +122,84 @@ with tabs[1]:
     source_footnote(df[df.indicator == "ta_families_length_of_stay"])
 
 with tabs[2]:
+    st.subheader("Why the main homelessness duty ended, January to March 2026")
+    st.write(
+        "Ending the main duty is the main way households leave TA. This is one quarter's flow, "
+        "so small boroughs can swing a lot between quarters."
+    )
+    ended = point("main_duty_ended_total")
+    if ended is not None:
+        prs = point("main_duty_ended_by_reason", "prs_offer_accepted")
+        social = point("main_duty_ended_by_reason", "social_offer_accepted")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Newham: main duty ended (quarter)", f"{ended['value']:,.0f}")
+        if prs is not None:
+            c2.metric("of which private rented offer accepted", f"{prs['value']:,.0f}")
+        if social is not None:
+            c3.metric("of which social housing offer accepted", f"{social['value']:,.0f}")
+    compare_breakdown(
+        df,
+        "main_duty_ended_by_reason_share",
+        areas,
+        order=[
+            "social_offer_accepted",
+            "social_offer_refused",
+            "prs_offer_accepted",
+            "prs_offer_refused",
+            "refused_ta_withdrew_or_lost_contact",
+            "ceased_eligible",
+            "intentionally_homeless_from_ta",
+            "voluntarily_left_ta",
+            "not_known",
+        ],
+        horizontal=True,
+    )
+    caveat("main_duty_ended_by_reason")
+    source_footnote(df[df.indicator == "main_duty_ended_by_reason"])
+
+with tabs[3]:
+    st.subheader("Where out-of-area households are placed (31 March 2026)")
+    dest = latest_period(
+        df[(df.indicator == "ta_out_of_area_by_destination") & df.area_name.isin(areas)]
+    )
+    if not dest.empty:
+        piv = dest.pivot_table(index="breakdown", columns="area_name", values="value")
+        piv.index = [pretty(i) for i in piv.index]
+        st.dataframe(piv.fillna(0).astype(int), width="stretch")
+        st.caption("Counts of households by destination region (TA9).")
+    caveat("ta_out_of_area_by_destination")
+    st.subheader("Out-of-area households by type of accommodation")
+    compare_breakdown(
+        df,
+        "ta_out_of_area_by_accommodation_type_share",
+        areas,
+        order=[
+            "nightly_paid",
+            "private_sector",
+            "bnb",
+            "la_ha_stock",
+            "hostel",
+            "other",
+            "no_accommodation_secured",
+        ],
+    )
+    st.subheader("Out-of-area households by household type")
+    compare_breakdown(
+        df,
+        "ta_out_of_area_by_composition_share",
+        areas,
+        order=[
+            "one_adult_female_with_children",
+            "one_adult_male_with_children",
+            "two_adults_with_children",
+            "three_plus_adults_with_children",
+            "adult_only",
+            "other_or_not_known",
+        ],
+    )
+    source_footnote(df[df.indicator == "ta_out_of_area_by_accommodation_type"])
+
+with tabs[4]:
     section = doc_section("docs/newham_evidence_brief.md", "4.")
     if section:
         st.markdown(section)

@@ -24,11 +24,14 @@ def ta_sheets(newham_value=10.0, city_value="[c]") -> dict[str, pd.DataFrame]:
             f"{lbl} [note 34]" if i == 0 else lbl for i, lbl in enumerate(labels)
         ]
         n = len(labels)
-        title = (
-            "Table TA1 - Number of households by type as at 31 March 2026, England, [note 1]"
-            if sheet == "TA1"
-            else f"Table {sheet} - something"
-        )
+        if sheet == "TA1":
+            title = (
+                "Table TA1 - Number of households by type as at 31 March 2026, England, [note 1]"
+            )
+        elif sheet in mhclg_ta.FLOW_SHEETS:
+            title = f"Table {sheet} - Number of households, January to March 2026, England"
+        else:
+            title = f"Table {sheet} - something"
         rows = [
             [title] + [None] * (n + 1),
             ["Return to contents"] + [None] * (n + 1),

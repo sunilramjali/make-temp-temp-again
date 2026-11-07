@@ -23,7 +23,8 @@ def test_period_read_from_title():
     df = parse()
     assert set(df["period"]) == {"2026-Q1"}
     assert set(df["period_end"].dt.strftime("%Y-%m-%d")) == {"2026-03-31"}
-    assert set(df["period_type"]) == {"quarter_end"}
+    assert set(df["period_type"]) == {"quarter_end", "quarter"}  # MD tables are flows
+    assert set(df[df.indicator == "ta_households"]["period_type"]) == {"quarter_end"}
 
 
 def test_only_london_and_england_rows_kept():
@@ -82,3 +83,23 @@ def test_unknown_cell_text_fails_loudly():
     sheets["TA2"].iloc[11, 2] = "n/a"
     with pytest.raises(ValueError, match="Unrecognised"):
         mhclg_ta.parse_ta_sheets(sheets, SOURCE, NAMES)
+
+
+def test_md_tables_are_quarterly_flows():
+    df = parse()
+    assert set(df[df.indicator == "main_duty_ended_by_reason"]["period_type"]) == {"quarter"}
+    assert set(df[df.indicator == "ta_out_of_area_by_destination"]["period_type"]) == {
+        "quarter_end"
+    }
+
+
+def test_md_title_for_a_different_quarter_fails():
+    sheets = ta_sheets()
+    sheets["MD2"].iloc[0, 0] = "Table MD2 - Number of households, October to December 2025, England"
+    with pytest.raises(ValueError, match="MD2"):
+        mhclg_ta.parse_ta_sheets(sheets, SOURCE, NAMES)
+
+
+def test_pregnant_priority_need_is_loaded():
+    row = pick(parse(newham_value=10.0), "E09000025", "main_duty_owed_by_priority_need", "pregnant")
+    assert row["value"] == 10.0

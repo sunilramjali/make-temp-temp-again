@@ -11,9 +11,10 @@ def _write(path, columns, rows=()):
     return path
 
 
-def test_services_template_loads():
-    # The committed template has the header only.
-    assert load_services().empty
+def test_committed_services_map_is_valid():
+    df = load_services()  # validates columns and the README category list
+    assert not df.empty
+    assert (df["offered_source"].str.strip() != "").all(), "every row must cite its source"
 
 
 def test_services_missing_column_rejected(tmp_path):
@@ -32,7 +33,7 @@ def test_services_unknown_category_rejected(tmp_path):
 def test_evidence_states_are_separate(tmp_path):
     cols = SERVICE_COLUMNS
     row = dict.fromkeys(cols, "")
-    row.update(borough="Newham", service_category="deposit", offered_source="doc.md")
+    row.update(borough="Newham", service_category="deposits", offered_source="doc.md")
     p = _write(tmp_path / "s.csv", cols, [[row[c] for c in cols]])
     out = add_evidence_states(load_services(p))
     assert out.loc[0, "offered"]

@@ -131,6 +131,16 @@ _LABELS = {
     "75_plus": "75 and over",
     "5_plus_years": "5+ years",
     "6_to_12_months": "6 to 12 months",
+    "prs_offer_accepted": "Private rented offer accepted",
+    "prs_offer_refused": "Private rented offer refused",
+    "social_offer_accepted": "Social housing offer accepted",
+    "social_offer_refused": "Social housing offer refused",
+    "refused_ta_withdrew_or_lost_contact": "Refused TA, withdrew or lost contact",
+    "intentionally_homeless_from_ta": "Intentionally homeless from TA",
+    "voluntarily_left_ta": "Voluntarily left TA",
+    "no_accommodation_secured": "Duty owed, no accommodation secured",
+    "children_other_priority_need": "Children, other priority need",
+    "yorkshire_humber": "Yorkshire and the Humber",
 }
 
 
@@ -296,6 +306,7 @@ def trend(df: pd.DataFrame, indicator: str, area_names: list[str], breakdown: st
         title=label(indicator),
     )
     fig.update_layout(legend_title_text="")
+    add_series_break(fig, indicator)
     st.plotly_chart(fig, width="stretch")
     estimated = sub[sub["value_status"] == "estimated"]
     if not estimated.empty:
@@ -306,6 +317,44 @@ def trend(df: pd.DataFrame, indicator: str, area_names: list[str], breakdown: st
     gaps = sub[sub["value"].isna()]
     if not gaps.empty:
         st.caption(f"{len(gaps)} point(s) missing in the source, shown as gaps.")
+
+
+def add_series_break(fig, indicator: str) -> None:
+    """Dashed line where the source says the series definitions changed (from indicators.yaml)."""
+    entry = dictionary().get(indicator, {})
+    when = entry.get("series_break_date")
+    if not when:
+        return
+    fig.add_shape(
+        type="line", x0=when, x1=when, y0=0, y1=1, yref="paper", line={"dash": "dash", "width": 1}
+    )
+    fig.add_annotation(
+        x=when, y=1, yref="paper", text="Series break", showarrow=False, yanchor="bottom"
+    )
+
+
+def stacked_trend(df: pd.DataFrame, indicator: str, area_name: str, order=None) -> None:
+    """Stacked area of one indicator's breakdowns over time for one area."""
+    sub = df[(df["indicator"] == indicator) & (df["area_name"] == area_name)].sort_values(
+        "period_end"
+    )
+    if sub.empty:
+        st.info("No data for this selection.")
+        return
+    sub = sub.assign(category=sub["breakdown"].map(pretty))
+    fig = px.area(
+        sub,
+        x="period_end",
+        y="value",
+        color="category",
+        category_orders={"category": [pretty(b) for b in order]} if order else None,
+        labels={"period_end": "", "value": sub["unit"].iloc[0].replace("_", " "), "category": ""},
+        title=f"{label(indicator)}: {area_name}",
+    )
+    add_series_break(fig, indicator)
+    st.plotly_chart(fig, width="stretch")
+    if dictionary().get(indicator, {}).get("series_break"):
+        st.caption("Series break: " + dictionary()[indicator]["series_break"])
 
 
 def indicator_explorer(

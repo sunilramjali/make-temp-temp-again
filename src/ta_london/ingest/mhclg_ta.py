@@ -24,7 +24,24 @@ from ta_london.ingest.common import (
     tidy,
 )
 
-SHEETS = ["TA1", "TA2", "TA3", "TA4c", "TA5", "TA6", "TA7", "TA8"]
+SHEETS = [
+    "TA1",
+    "TA2",
+    "TA3",
+    "TA4c",
+    "TA5",
+    "TA6",
+    "TA7",
+    "TA8",
+    "TA9",
+    "TA9_TATYPE",
+    "TA9_HHTYPE",
+    "MD1",
+    "MD2",
+    "MD3",
+]
+# MD tables are flows during the quarter (decisions, duty ends), not end-of-quarter counts.
+FLOW_SHEETS = {"MD1", "MD2", "MD3"}
 
 _TYPE_PREFIX = {
     "bnb": "Households in B&Bs including shared annexes",
@@ -282,6 +299,154 @@ SPECS: dict[str, list[tuple[str, str, str, str]]] = {
         ("People aged under 18 Total", "ta_children_under_18", "all", "children"),
         *((str(a), "ta_children_by_age", f"age_{a}", "children") for a in range(18)),
     ],
+    "TA9": [
+        (
+            "Households owed a TA duty in another LA (per thousand households)",
+            "ta_households_out_of_area_per_1000",
+            "all",
+            "per_1000_households",
+        ),
+        *(
+            (
+                f"Households owed a TA duty in another LA Destination: {region}",
+                "ta_out_of_area_by_destination",
+                key,
+                "households",
+            )
+            for region, key in [
+                ("North East", "north_east"),
+                ("North West", "north_west"),
+                ("Yorkshire and The Humber", "yorkshire_humber"),
+                ("East Midlands", "east_midlands"),
+                ("West Midlands", "west_midlands"),
+                ("East of England", "east_of_england"),
+                ("London", "london"),
+                ("South East", "south_east"),
+                ("South West", "south_west"),
+            ]
+        ),
+    ],
+    "TA9_TATYPE": [
+        (label, "ta_out_of_area_by_accommodation_type", key, "households")
+        for label, key in [
+            ("Duty owed but no accommodation secured in another LA", "no_accommodation_secured"),
+            (
+                "Placed in temporary accommodation in another LA B&B's including shared annexes",
+                "bnb",
+            ),
+            (
+                "Placed in temporary accommodation in another LA Nightly paid, privately managed "
+                "accommodation, self-contained",
+                "nightly_paid",
+            ),
+            (
+                "Placed in temporary accommodation in another LA Hostels, including reception "
+                "centres, emergency units and refuges",
+                "hostel",
+            ),
+            (
+                "Placed in temporary accommodation in another LA Private sector accommodation",
+                "private_sector",
+            ),
+            ("Placed in temporary accommodation in another LA LA or HA stock", "la_ha_stock"),
+            (
+                "Placed in temporary accommodation in another LA Any other type of TA (including "
+                "private landlord and not known)",
+                "other",
+            ),
+        ]
+    ],
+    "TA9_HHTYPE": [
+        (label, "ta_out_of_area_by_composition", key, "households")
+        for label, key in [
+            ("One adult with dependent child or children Male", "one_adult_male_with_children"),
+            ("One adult with dependent child or children Female", "one_adult_female_with_children"),
+            (
+                "One adult with dependent child or children Sex not known or other",
+                "one_adult_other_sex_with_children",
+            ),
+            ("Two adults with dependent child or children", "two_adults_with_children"),
+            (
+                "Three or more adults with dependent child or children",
+                "three_plus_adults_with_children",
+            ),
+            ("Adult only households Total", "adult_only"),
+            ("Not known", "other_or_not_known"),
+        ]
+    ],
+    "MD1": [
+        (
+            "Main duty decisions for eligible households Total",
+            "relief_end_decisions_total",
+            "all",
+            "households",
+        ),
+        *(
+            (label, "relief_end_decisions", key, "households")
+            for label, key in [
+                (
+                    "Homeless and priority need and unintentionally homeless, acceptance",
+                    "accepted_main_duty",
+                ),
+                ("Homeless and priority need and intentionally homeless", "intentionally_homeless"),
+                ("Homeless and no priority need", "no_priority_need"),
+                ("Not homeless", "not_homeless"),
+            ]
+        ),
+    ],
+    "MD2": [
+        ("Households whose main duty ended Total", "main_duty_ended_total", "all", "households"),
+        *(
+            (label, "main_duty_ended_by_reason", key, "households")
+            for label, key in [
+                ("Housing Act 1996 Pt6 social housing offer Accepted", "social_offer_accepted"),
+                ("Housing Act 1996 Pt6 social housing offer Refused", "social_offer_refused"),
+                ("PRS offer Accepted", "prs_offer_accepted"),
+                ("PRS offer Refused", "prs_offer_refused"),
+                (
+                    "Refused suitable TA offer, withdrew or lost contact",
+                    "refused_ta_withdrew_or_lost_contact",
+                ),
+                ("Ceased to be eligible", "ceased_eligible"),
+                ("Became intentionally homeless from TA", "intentionally_homeless_from_ta"),
+                ("Voluntarily ceased to occupy TA", "voluntarily_left_ta"),
+                ("Not known", "not_known"),
+            ]
+        ),
+    ],
+    "MD3": [
+        ("Households owed a main duty Total", "main_duty_owed_total", "all", "households"),
+        *(
+            (label, "main_duty_owed_by_priority_need", key, "households")
+            for label, key in [
+                ("Household includes dependent children", "dependent_children"),
+                (
+                    "Household includes children, but other priority need reported",
+                    "children_other_priority_need",
+                ),
+                ("Household includes a pregnant woman", "pregnant"),
+                ("Household member vulnerable Total", "vulnerable"),
+                ("Homeless because of emergency", "emergency"),
+            ]
+        ),
+        *(
+            (label, "main_duty_owed_vulnerable_detail", key, "households")
+            for label, key in [
+                ("Household member vulnerable as a result of old age", "old_age"),
+                (
+                    "Household member vulnerable as a result of physical disability or ill health",
+                    "physical_disability_or_ill_health",
+                ),
+                (
+                    "Household member vulnerable as a result of mental health problems",
+                    "mental_health",
+                ),
+                ("Household member vulnerable as a result of young applicant", "young_applicant"),
+                ("Household member vulnerable as a result of domestic abuse", "domestic_abuse"),
+                ("Household member vulnerable as a result of other reasons", "other"),
+            ]
+        ),
+    ],
 }
 
 # TA7 reports 0 days where a type has no households; an average of 0 days is not a real
@@ -320,6 +485,16 @@ def snapshot_period(ta1_df: pd.DataFrame) -> tuple[str, date]:
     return f"{end.year}-Q{(end.month - 1) // 3 + 1}", end
 
 
+def flow_period_check(df: pd.DataFrame, sheet: str, period_end: date) -> None:
+    """MD tables cover the quarter ending on the TA snapshot date; fail if the title disagrees."""
+    title = " ".join(str(df.iloc[0, 0]).split())
+    m = re.search(r"([A-Za-z]+) to ([A-Za-z]+) (\d{4})", title)
+    if not m or _MONTHS.get(m.group(2)) != period_end.month or int(m.group(3)) != period_end.year:
+        raise ValueError(
+            f"{sheet}: title period does not match the TA snapshot {period_end}: {title!r}"
+        )
+
+
 def _area_rows(df: pd.DataFrame, header_row: int, borough_codes: set[str]) -> pd.DataFrame:
     body = df.iloc[header_row + 1 :].copy()
     body.index = body.iloc[:, 0].map(clean_code)
@@ -342,6 +517,9 @@ def parse_ta_sheets(
     records: list[dict] = []
     for sheet, specs in SPECS.items():
         df = sheets[sheet]
+        period_type = "quarter" if sheet in FLOW_SHEETS else "quarter_end"
+        if sheet in FLOW_SHEETS:
+            flow_period_check(df, sheet, period_end)
         h = find_header_row(df, "Organisation")
         labels = [clean_label(v) for v in df.iloc[h]]
         rows = _area_rows(df, h, borough_codes)
@@ -356,7 +534,7 @@ def parse_ta_sheets(
                         "area_code": code,
                         "area_name": names[code],
                         "period": period,
-                        "period_type": "quarter_end",
+                        "period_type": period_type,
                         "period_end": period_end,
                         "indicator": indicator,
                         "breakdown": breakdown,
