@@ -46,12 +46,12 @@ cd make-temp-temp-again
 ```bash
 uv sync                            # install dependencies
 uv run pytest && uv run ruff check # checks
-uv run python -m ta_london.pipeline # build data/processed/ from data/raw/ (no loaders yet)
+uv run python -m ta_london.pipeline # build data/processed/indicators.parquet from data/raw/ (about 2 minutes)
 uv run jupyter lab                 # notebooks
 uv run streamlit run app/Home.py   # dashboard
 ```
 
-The dashboard shows an empty state on each page until data is loaded. GR's policy documents go in `policy/` as `.md` files and appear on the *Policies* page.
+The dashboard shows an empty state on each page until the pipeline has been run. `data/processed/` and `data/interim/` are not committed, so run the pipeline after cloning. GR's policy documents go in `policy/` as `.md` files and appear on the *Policies* page.
 
 ---
 

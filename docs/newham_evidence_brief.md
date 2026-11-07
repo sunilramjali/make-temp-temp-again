@@ -11,7 +11,7 @@ Draft for team review. Written 2026-11-07 (sunil session). Findings are **descri
 1. **Scale.** On 31 March 2026 Newham had **7,561 households in TA**, the most of any London borough and **59.8 per 1,000 households** (London 21.1). Of these, 5,453 were households with children (10,952 children).
 2. **Who.** Newham's TA population is more family-heavy than London's (72% of households have dependent children vs 67%), and its families are less often single-adult (47% vs 56%). Among households whose ethnicity is recorded, 41% of main applicants are Asian (23% Bangladeshi), 33% Black and 17% White. But **ethnicity is not recorded for 30%** of Newham's TA households, so treat these shares with care.
 3. **Where and how long.** 63% of Newham's families in TA are in nightly-paid, privately managed self-contained accommodation (London 49%). 72% of those families have been there a year or more, and 843 families for five years or more.
-4. **Social housing.** 41,223 households were on Newham's housing register at 31 March 2025 (highest in London, up 58% since 2018). Newham made **711 new social lettings in 2024/25**, down from 966 the year before. Social-housing churn is 1.4% of stock a year, among the lowest in London.
+4. **Social housing.** 41,223 households were on Newham's housing register at 31 March 2025 (highest in London, up 58% since 2018). Newham made **711 new social lettings in 2024/25**, down from 966 the year before. Social-housing churn is 1.4% of stock a year, the lowest of the boroughs that submitted full CORE data (Camden and Greenwich did not submit this year, so their rates are unreliable).
 5. **Current solution.** Newham's stated approach is to move families into private rented homes, increasingly outside the borough. Its 2025 placements policy says it needs to procure accommodation outside London to keep it affordable. I found **no published evidence of uptake or outcomes** for the schemes in the policies. That is a gap, not a finding that they don't work.
 
 ---
@@ -170,13 +170,13 @@ Short answer from the figures: **supply is small compared with demand on every m
 |---|---:|---:|---:|
 | Newham new social lettings (all types) | 930 | 966 | **711** |
 
-- 711 is 2.5% of London's 28,299 lets in 2024/25. Lambeth made 1,856, Hackney 1,662 and Tower Hamlets 1,636.
+- The 33 boroughs total 28,299 in the table, but **Barnet, Camden, Greenwich and Wandsworth did not submit CORE data in 2024/25** (table note 10), so that total and any ranking are incomplete. Newham did submit. Highest among the others: Lambeth 1,856, Hackney 1,662, Tower Hamlets 1,636. The figures are unweighted and as reported (note 9).
 - Roughly 58 households on the register for each letting made in a year, and the TA caseload (7,561) is about 10.6 times annual lettings. These compare numbers from different dates and populations (many lettings go to people not in TA), so use them only to show scale.
 - The council's "around 600 properties a year" in older consultation slides is not a current official figure. The CORE figure above replaces it.
 
 ### Churn and the rent gap (CORE, Table 1e)
 
-- **448 social re-lets from 31,666 homes: 1.4% of stock** a year. London's boroughs range from 1.2% (Greenwich) to 5.0% (Richmond). Newham is tied with Camden for second lowest.
+- **448 social re-lets from 31,666 homes: 1.4% of stock** a year. Among boroughs that submitted CORE data in 2024/25, Newham has the lowest rate (next: Southwark 1.7%; highest: Richmond upon Thames 5.0%). Greenwich (1.2%) and Camden (1.4%) did not submit, so their rates are under-counts and can't be compared.
 - Average weekly **social re-let rent £160.26** vs **market rent £390.23** (41.1%), per the table's rent source. The gap is about £230 a week, which is the context for families trying to leave TA by renting privately.
 
 ### What I could not get

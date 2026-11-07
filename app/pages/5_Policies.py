@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from components import caveat_box
+from components import DESCRIPTIVE, read_doc
 from ta_london.paths import SERVICES_MAP
 from ta_london.services import add_evidence_states, list_policy_documents, load_services
 
@@ -11,9 +11,11 @@ st.write(
     "What each borough offers, kept separate from evidence that a service is used or works. "
     "A published scheme is not evidence that it works."
 )
-caveat_box()
+st.caption(DESCRIPTIVE)
 
-tab_matrix, tab_table, tab_docs = st.tabs(["Matrix", "Services table", "Policy documents"])
+tab_matrix, tab_table, tab_docs, tab_brief, tab_sources = st.tabs(
+    ["Matrix", "Services table", "Policy documents", "Evidence brief", "Source links"]
+)
 
 services = add_evidence_states(load_services()) if SERVICES_MAP.exists() else pd.DataFrame()
 
@@ -117,3 +119,11 @@ with tab_docs:
         path = view.loc[view["relative_path"] == choice, "path"].iloc[0]
         st.caption(f"policy/{choice}")
         st.markdown(path.read_text(encoding="utf-8"))
+
+with tab_brief:
+    brief = read_doc("docs/newham_evidence_brief.md")
+    st.markdown(brief or "`docs/newham_evidence_brief.md` not found.")
+
+with tab_sources:
+    links = read_doc("docs/source_links.md")
+    st.markdown(links or "`docs/source_links.md` not found.")
