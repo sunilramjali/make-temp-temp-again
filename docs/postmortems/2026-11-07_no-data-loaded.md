@@ -1,7 +1,7 @@
 # Post-mortem: dashboard showed "No data loaded" (2026-11-07)
 
-**Status:** fixed on branch `sunil`, in PR #4 to `staging` (awaiting merge), then `staging` to `main`.
-**Author:** Claude (sunil session). Blameless: this is about the process, not people.
+**Status:** fixed and released to `main` (PR #4 into `staging`, PR #5 into `main`, 7 November 2026). Checked on a fresh clone of `main`.
+**Format:** blameless; this is about the process, not people.
 
 ## Summary
 
@@ -17,13 +17,14 @@ The dashboard on `main` showed "No data loaded yet" on every data page. `main` h
 
 | Time | Event |
 |---|---|
-| 15:47 | Environment and dashboard skeleton committed on `sunil`. The data pages had empty states because no loaders existed yet. |
+| 15:47 | Environment and dashboard skeleton committed on a personal branch. The data pages had empty states because no loaders existed yet. |
 | 15:56 | PR #2 (skeleton + evidence brief) merged into `staging`. |
 | 15:58 | PR #3 merged `staging` into `main`. **`main` now has the app but no loaders.** |
 | ~15:50-16:00 | Loaders, pipeline and charts written and tested on the local machine only (uncommitted). Locally the dashboard worked. |
 | 16:00 | Local dashboard started at localhost:8501, showing data on that machine. |
 | 16:05 | User reports the "no data" problem. |
 | 16:09 | Fix committed (`f992a93`), checked on a fresh clone, PR #4 opened. |
+| 16:27 | PR #5 merged `staging` into `main`. A fresh clone of `main` built its data in 34 seconds and showed charts. |
 
 ## Root causes
 
@@ -41,7 +42,7 @@ The dashboard on `main` showed "No data loaded yet" on every data page. `main` h
 
 ## Verification
 
-- Fresh clone of `sunil` with no processed data: opening Home built the data automatically in 33 seconds, with no warnings, and the borough page drew its chart.
+- Fresh clone with no processed data: opening Home built the data automatically in 33 seconds, with no warnings, and the borough page drew its chart.
 - New regression tests (`tests/test_app_data_loading.py`) cover: no data with auto-build off shows a clear message; no data triggers a build; a failed build shows its reason; a file created after a page loaded is shown without a restart.
 - Full suite: 72 tests pass. `ruff check` and `ruff format --check` are clean.
 
@@ -49,7 +50,7 @@ The dashboard on `main` showed "No data loaded yet" on every data page. `main` h
 
 | # | Action | Why |
 |---|---|---|
-| 1 | Merge PR #4 into `staging`, then `staging` into `main` | Gets the fix to everyone |
+| 1 | ~~Merge PR #4 into `staging`, then `staging` into `main`~~ Done (PRs #4 and #5) | Gets the fix to everyone |
 | 2 | Add a GitHub Action that runs `uv sync && uv run pytest` on a clean checkout for every PR | Catches "works only on my machine" before merge (root cause 4) |
 | 3 | Only promote `staging` to `main` after opening the app from a fresh clone | Root cause 1 |
 | 4 | When reporting work, state plainly whether it is committed or pushed, at the start, not as a footnote | Root cause 5 |

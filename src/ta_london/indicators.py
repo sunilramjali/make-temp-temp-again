@@ -78,22 +78,73 @@ def add_shares(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+# (new indicator, numerator, denominator, multiplier). Same area and period; breakdown 'all'.
+# households_in_area is in thousands, so households / (thousands * 1000) * 100 = 0.1 * ratio.
+RATIOS = [
+    ("ta_households_out_of_area_share", "ta_households_out_of_area", "ta_households", 100.0),
+    ("ta_households_pct_of_households", "ta_households", "households_in_area", 0.1),
+    (
+        "ta_households_with_children_pct_of_households",
+        "ta_households_with_children",
+        "households_in_area",
+        0.1,
+    ),
+]
+
+
 def add_ratios(df: pd.DataFrame) -> pd.DataFrame:
-    """Append ratio indicators built from two stored indicators (same area and period)."""
+    """Append ratio indicators (percent) built from two stored indicators."""
     keys = [*_KEYS]
-    num = df[(df["indicator"] == "ta_households_out_of_area") & (df["breakdown"] == "all")]
-    den = df[(df["indicator"] == "ta_households") & (df["breakdown"] == "all")]
-    if num.empty or den.empty:
-        return df
-    m = num.merge(den[[*keys, "value", "value_status"]], on=keys, suffixes=("", "_den"))
-    ok = m["value"].notna() & m["value_den"].notna() & (m["value_den"] > 0)
-    out = m[[*keys, "breakdown"]].copy()
-    out["indicator"] = "ta_households_out_of_area_share"
-    out["value"] = np.where(ok, 100 * m["value"] / m["value_den"].where(m["value_den"] > 0), np.nan)
-    out["value_status"] = np.where(ok, "ok", "missing")
-    out["unit"] = "percent"
-    out = out[df.columns]
-    return pd.concat([df, out], ignore_index=True)
+    extra = []
+    for name, numerator, denominator, multiplier in RATIOS:
+        num = df[(df["indicator"] == numerator) & (df["breakdown"] == "all")]
+        den = df[(df["indicator"] == denominator) & (df["breakdown"] == "all")]
+        if num.empty or den.empty:
+            continue
+        m = num.merge(den[[*keys, "value", "value_status"]], on=keys, suffixes=("", "_den"))
+        ok = m["value"].notna() & m["value_den"].notna() & (m["value_den"] > 0)
+        suppressed = m["value_status"].eq("suppressed") | m["value_status_den"].eq("suppressed")
+        out = m[[*keys, "breakdown"]].copy()
+        out["indicator"] = name
+        out["value"] = np.where(
+            ok, multiplier * m["value"] / m["value_den"].where(m["value_den"] > 0), np.nan
+        )
+        out["value_status"] = np.where(ok, "ok", np.where(suppressed, "suppressed", "missing"))
+        out["unit"] = "percent"
+        extra.append(out[df.columns])
+    return pd.concat([df, *extra], ignore_index=True)
+
+
+def add_derived(df: pd.DataFrame) -> pd.DataFrame:
+    """Two simple derived values the app shows, kept here so the app does no maths:
+    the weekly market-minus-social rent gap, and children under 5 (sum of TA8 ages 0-4)."""
+    keys = [*_KEYS]
+    extra = []
+    market = df[df["indicator"] == "market_rent_weekly"]
+    social = df[df["indicator"] == "social_relet_rent_weekly"]
+    if not market.empty and not social.empty:
+        m = market.merge(social[[*keys, "value"]], on=keys, suffixes=("", "_social"))
+        ok = m["value"].notna() & m["value_social"].notna()
+        out = m[[*keys, "breakdown"]].copy()
+        out["indicator"] = "rent_gap_weekly"
+        out["value"] = np.where(ok, m["value"] - m["value_social"], np.nan)
+        out["value_status"] = np.where(ok, "ok", "missing")
+        out["unit"] = "gbp_per_week"
+        extra.append(out[df.columns])
+    ages = df[
+        (df["indicator"] == "ta_children_by_age")
+        & df["breakdown"].isin([f"age_{a}" for a in range(5)])
+    ]
+    if not ages.empty:
+        g = ages.groupby(keys)["value"]
+        out = g.sum(min_count=5).reset_index()  # NaN unless all five ages are present
+        out["breakdown"] = "all"
+        out["indicator"] = "ta_children_under_5"
+        out["value_status"] = np.where(out["value"].notna(), "ok", "missing")
+        out["unit"] = "children"
+        out["value"] = out["value"].astype(float)
+        extra.append(out[df.columns])
+    return pd.concat([df, *extra], ignore_index=True)
 
 
 def load_dictionary(path=DICTIONARY_PATH) -> dict[str, dict]:
