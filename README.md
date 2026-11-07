@@ -41,13 +41,17 @@ git clone https://github.com/sunilramjali/make-temp-temp-again.git
 cd make-temp-temp-again
 ```
 
-**Environment:** the tech stack is still being finalised (planned: Python 3.12 + uv, pandas, Plotly, Streamlit). See [`docs/decisions.md`](docs/decisions.md). Once `pyproject.toml` is added:
+**Environment:** Python 3.12 + uv (see decision #6 in [`docs/decisions.md`](docs/decisions.md)).
 
 ```bash
-uv sync                         # install dependencies
-uv run jupyter lab              # notebooks
+uv sync                            # install dependencies
+uv run pytest && uv run ruff check # checks
+uv run python -m ta_london.pipeline # build data/processed/ from data/raw/ (no loaders yet)
+uv run jupyter lab                 # notebooks
 uv run streamlit run app/Home.py   # dashboard
 ```
+
+The dashboard shows an empty state on each page until data is loaded. GR's policy documents go in `policy/` as `.md` files and appear on the *Policies* page.
 
 ---
 
