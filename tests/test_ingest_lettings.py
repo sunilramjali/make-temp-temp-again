@@ -114,3 +114,50 @@ def test_1e_blank_value_is_missing():
 def test_outputs_pass_schema():
     validate(lettings.parse_table_1d(frame_1d(), "src", NAMES))
     validate(lettings.parse_table_1e(frame_1e(), "src", NAMES))
+
+
+def notes_frame(text=None):
+    text = text or (
+        "[note 10] Using the data shows that several local authorities did not submit CORE data "
+        "in 2024/25 despite letting out properties. These were: Wokingham, Newham, Salford "
+        "and Barking and Dagenham. Further information on coverage can be found in the notes."
+    )
+    return pd.DataFrame(
+        [["Notes"], ["[note 9] Something else about 2023/24."], [text], ["[note 11] Other."]]
+    )
+
+
+def test_non_submitters_reads_note_10():
+    period, codes = lettings.non_submitters(notes_frame(), NAMES)
+    # Non-London names ignored; "Barking and Dagenham" not split on "and".
+    assert period == "2024-25" and codes == {"E09000025", "E09000002"}
+
+
+def test_non_submitters_note_split_across_columns():
+    # Real Notes sheet: note number in one column, text in the next.
+    frame = pd.DataFrame([["[note 10]", notes_frame().iloc[2, 0].removeprefix("[note 10] ")]])
+    assert lettings.non_submitters(frame, NAMES)[1] == {"E09000025", "E09000002"}
+
+
+def test_non_submitters_fails_loudly_without_note():
+    with pytest.raises(ValueError, match="note 10"):
+        lettings.non_submitters(pd.DataFrame([["[note 10] Reworded note."]]), NAMES)
+
+
+def test_mark_incomplete_only_core_rows_for_that_year():
+    df = pd.concat(
+        [
+            lettings.parse_table_1d(frame_1d(), "src", NAMES),
+            lettings.parse_table_1e(frame_1e(), "src", NAMES),
+        ],
+        ignore_index=True,
+    )
+    out = lettings.mark_incomplete(df, "2024-25", {"E09000025"})
+    newham = out[out.area_code == "E09000025"]
+    flagged = newham[newham.value_status == "incomplete"]
+    assert set(flagged["period"]) == {"2024-25"}
+    assert {"social_lettings_total", "social_relet_rate"} <= set(flagged["indicator"])
+    unflagged = set(newham[newham.period == "2024-25"].query("value_status == 'ok'")["indicator"])
+    assert unflagged == {"market_rent_weekly", "social_stock_1_april"}
+    assert (out[out.area_code == "E09000001"]["value_status"] != "incomplete").all()
+    validate(out)
