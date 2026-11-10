@@ -716,6 +716,14 @@ def indicator_explorer(
         rank = int((boroughs["value"] > newham["value"].iloc[0]).sum()) + 1
         rank_note = f"Newham ranks {rank} of {len(boroughs)}. "
     chart_title(label(indicator), f"{rank_note}{period}. Newham highlighted.")
-    ranked_bar(sub, indicator)
+    if not sub.empty and sub["unit"].iloc[0] in MAP_UNITS:
+        left, right = st.columns(2)
+        with left:
+            borough_map(sub, indicator)
+        with right:
+            ranked_bar(sub, indicator)
+    else:
+        ranked_bar(sub, indicator)
+        st.caption("Map shown for rates and shares only, so large boroughs don't look worst.")
     caveat(indicator)
     source_footnote(sub)

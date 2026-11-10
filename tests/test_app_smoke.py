@@ -44,3 +44,14 @@ def test_social_housing_draws_borough_maps():
     assert not at.exception
     maps = [c for c in at.get("plotly_chart") if '"choropleth"' in c.proto.spec]
     assert len(maps) == 2
+
+
+@pytest.mark.skipif(
+    not (HAS_DATA and (ROOT / "data" / "reference" / "london_boroughs.geojson").exists()),
+    reason="run the pipeline with the ONS boundary file first",
+)
+def test_london_boroughs_draws_map_for_default_rate_indicator():
+    at = run("pages/1_London_boroughs.py")
+    assert not at.exception
+    maps = [c for c in at.get("plotly_chart") if '"choropleth"' in c.proto.spec]
+    assert len(maps) == 1
