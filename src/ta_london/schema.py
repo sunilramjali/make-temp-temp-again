@@ -19,7 +19,9 @@ COLUMNS = [
 # quarter_end: count on the last day of a quarter. quarter: flow during a quarter (e.g. exits).
 # calendar_year_average: average of the four quarters of a calendar year (Trust for London).
 PERIOD_TYPES = ["quarter_end", "quarter", "financial_year", "snapshot", "calendar_year_average"]
-VALUE_STATUSES = ["ok", "suppressed", "missing", "estimated"]
+# incomplete: a value is published but rests on incomplete returns (e.g. a council did not submit
+# CORE data), so it is an under-count or unreliable. It keeps its value.
+VALUE_STATUSES = ["ok", "suppressed", "missing", "estimated", "incomplete"]
 AREA_CODE_PATTERN = r"^(E0[6-9]\d{6}|E1[0-2]\d{6}|E92000001)$"
 
 tidy_schema = pa.DataFrameSchema(

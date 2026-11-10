@@ -2,14 +2,15 @@
 
     uv run python -m ta_london.pipeline
 
-Reads only from data/raw/. Writes the borough reference to data/reference/, one interim table per
-source to data/interim/, and the tidy table to data/processed/indicators.parquet. Deterministic:
+Reads only from data/raw/. Writes the borough reference and boundaries to data/reference/, one
+interim table per source to data/interim/, and the tidy table to data/processed/indicators.parquet.
+Deterministic:
 deleting interim/ and processed/ and re-running gives identical output.
 """
 
 import pandas as pd
 
-from ta_london import geography, indicators, schema, sources
+from ta_london import boundaries, geography, indicators, schema, sources
 from ta_london.ingest import gla_council_homes, lettings, mhclg_ta, trust_for_london, waiting_list
 from ta_london.paths import INTERIM, PROCESSED, RAW
 
@@ -65,6 +66,10 @@ def run() -> pd.DataFrame:
     la = pd.read_excel(LT600, engine="odf", sheet_name="Local_Authority_Data", header=None)
     geography.write_boroughs(geography.build_boroughs_from_lt600(la))
     names = geography.area_name_lookup()
+    if boundaries.write_london_boundaries():
+        print("Borough boundaries (ONS LAD May 2024 BGC) ...")
+    else:
+        print(f"No boundary file at {boundaries.RAW_BOUNDARIES}; maps will be hidden.")
 
     parts = {}
     print("Waiting list (Live Table 600) ...")

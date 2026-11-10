@@ -35,6 +35,10 @@ def test_suppressed_value_is_nan_with_status():
     validate(_df(_good_row(value=float("nan"), value_status="suppressed")))
 
 
+def test_incomplete_keeps_its_value():
+    validate(_df(_good_row(value=711.0, value_status="incomplete")))
+
+
 @pytest.mark.parametrize(
     "bad",
     [
@@ -45,6 +49,8 @@ def test_suppressed_value_is_nan_with_status():
         # NaN without a reason, and a zero standing in for suppressed data's status
         {"value": float("nan"), "value_status": "ok"},
         {"value": 0.0, "value_status": "suppressed"},
+        # incomplete keeps its value: NaN must say suppressed or missing instead
+        {"value": float("nan"), "value_status": "incomplete"},
     ],
 )
 def test_bad_frames_are_rejected(bad):
