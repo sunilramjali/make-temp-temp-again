@@ -4,6 +4,7 @@ Every number shown here is read from data/processed/indicators.parquet, which th
 Shares and ratios are calculated in src/ta_london/indicators.py, not here.
 """
 
+import json
 import os
 import threading
 
@@ -13,6 +14,7 @@ import streamlit as st
 
 import viz
 from ta_london import pipeline
+from ta_london.boundaries import BOUNDARIES_GEOJSON
 from ta_london.geography import ENGLAND_CODE, LONDON_CODE, NEWHAM_CODE
 from ta_london.indicators import load_dictionary
 from ta_london.paths import PROCESSED, ROOT, SOURCES_CSV
@@ -267,6 +269,7 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
         return
     unit = shown["unit"].iloc[0]
     is_newham = shown["area_code"].eq(NEWHAM_CODE)
+    is_incomplete = shown["value_status"].eq("incomplete")
     colours = [viz.accent() if n else viz.tok("deemph") for n in is_newham]
     text = [fmt(v, unit) if n else "" for v, n in zip(shown["value"], is_newham, strict=True)]
     fig = go.Figure(
@@ -274,13 +277,25 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
             x=shown["value"],
             y=shown["area_name"],
             orientation="h",
-            marker={"color": colours},
+            # Incomplete returns: hatched, so an under-count doesn't read as a real low value.
+            marker={
+                "color": colours,
+                "pattern": {
+                    "shape": ["/" if i else "" for i in is_incomplete],
+                    "fgcolor": viz.tok("muted"),
+                    "bgcolor": viz.tok("surface"),
+                    "solidity": 0.35,
+                },
+            },
             width=0.62,
             text=text,
             textposition="outside",
             textfont={"color": viz.tok("ink"), "size": 12},
             cliponaxis=False,
-            customdata=[fmt(v, unit) for v in shown["value"]],
+            customdata=[
+                fmt(v, unit) + (" (incomplete data)" if i else "")
+                for v, i in zip(shown["value"], is_incomplete, strict=True)
+            ],
             hovertemplate="%{y}: %{customdata}<extra></extra>",
         )
     )
@@ -322,6 +337,11 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
     estimated = shown[shown["value_status"] == "estimated"]
     if not estimated.empty:
         notes.append("Estimated by MHCLG: " + ", ".join(sorted(estimated["area_name"].unique())))
+    if is_incomplete.any():
+        notes.append(
+            "Hatched: incomplete returns, so the value is an under-count or unreliable: "
+            + ", ".join(sorted(shown.loc[is_incomplete, "area_name"].unique()))
+        )
     for n in notes:
         st.caption(n)
     rank = shown.sort_values("value", ascending=False).reset_index(drop=True)
@@ -335,6 +355,110 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
             }
         )
     )
+
+
+# Only rates and shares are mapped: counts on a map make the biggest boroughs look worst.
+MAP_UNITS = ("percent", "per_1000_households")
+_UNRELIABLE = ("suppressed", "missing", "incomplete")
+# Required with any map drawn from the ONS boundaries (see data/sources.csv).
+BOUNDARY_CREDIT = (
+    "Boundaries: Office for National Statistics licensed under the Open Government Licence "
+    "v3.0. Contains OS data © Crown copyright and database right 2024."
+)
+
+
+@st.cache_data
+def _boundaries(path: str, modified: float) -> dict:
+    with open(path) as f:
+        return json.load(f)
+
+
+def borough_map(sub: pd.DataFrame, indicator: str) -> None:
+    """Choropleth of the 33 boroughs for one rate indicator and period. Boroughs with no
+    reliable value (suppressed, missing or incomplete returns) are grey, never shaded as low.
+    Newham is outlined in the accent colour. Hidden if the boundary file isn't built."""
+    if not BOUNDARIES_GEOJSON.exists():
+        st.caption("Map unavailable: run the pipeline with the ONS boundary file in data/raw/ons/.")
+        return
+    boroughs = sub[sub["area_code"].str.startswith("E09")]
+    if boroughs.empty:
+        return
+    unit = boroughs["unit"].iloc[0]
+    if unit not in MAP_UNITS:
+        raise ValueError(f"borough_map shows rates only, not {unit!r} ({indicator})")
+    geo = _boundaries(str(BOUNDARIES_GEOJSON), BOUNDARIES_GEOJSON.stat().st_mtime)
+    names = dict(load_data()[["area_code", "area_name"]].drop_duplicates().values)
+    all_codes = [f["properties"]["area_code"] for f in geo["features"]]
+    reliable = boroughs[~boroughs["value_status"].isin(_UNRELIABLE) & boroughs["value"].notna()]
+    grey = [c for c in all_codes if c not in set(reliable["area_code"])]
+    status = dict(boroughs[["area_code", "value_status"]].values)
+    values = dict(boroughs[["area_code", "value"]].values)
+    reason = {"incomplete": "incomplete returns", "suppressed": "suppressed", "missing": "no data"}
+
+    ramp = viz.tok("ordinal")
+    line = {"color": viz.tok("surface"), "width": 0.8}
+    common = {"geojson": geo, "featureidkey": "properties.area_code", "hoverinfo": "text"}
+    fig = go.Figure()
+    fig.add_trace(
+        go.Choropleth(
+            **common,
+            locations=reliable["area_code"],
+            z=reliable["value"],
+            colorscale=[[0, ramp[0]], [0.5, ramp[1]], [1, ramp[2]]],
+            marker={"line": line},
+            text=[f"{r.area_name}: {fmt(r.value, unit)}" for r in reliable.itertuples()],
+            colorbar={
+                "title": {"text": unit_label(unit), "side": "right"},
+                "thickness": 10,
+                "len": 0.7,
+                "outlinewidth": 0,
+                "tickfont": {"color": viz.tok("ink2"), "size": 11},
+            },
+        )
+    )
+    if grey:
+        fig.add_trace(
+            go.Choropleth(
+                **common,
+                locations=grey,
+                z=[0] * len(grey),
+                colorscale=[[0, viz.tok("neutral")], [1, viz.tok("neutral")]],
+                showscale=False,
+                marker={"line": line},
+                text=[
+                    f"{names.get(c, c)}: {fmt(values.get(c), unit)} "
+                    f"(not shaded: {reason.get(status.get(c), 'no data')})"
+                    for c in grey
+                ],
+            )
+        )
+    if NEWHAM_CODE in all_codes:
+        fig.add_trace(
+            go.Choropleth(
+                **common,
+                locations=[NEWHAM_CODE],
+                z=[0],
+                colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],
+                showscale=False,
+                marker={"line": {"color": viz.accent(), "width": 3}},
+                text=[f"{names.get(NEWHAM_CODE, 'Newham')}: {fmt(values.get(NEWHAM_CODE), unit)}"],
+            )
+        )
+    fig.update_geos(fitbounds="locations", visible=False, bgcolor="rgba(0,0,0,0)")
+    fig.update_layout(
+        height=420,
+        margin={"l": 0, "r": 0, "t": 10, "b": 0},
+        paper_bgcolor="rgba(0,0,0,0)",
+        font={"family": viz.FONT, "color": viz.tok("ink2")},
+        dragmode=False,
+    )
+    _show(fig)
+    st.caption(
+        "Newham outlined. Grey: not shaded because the value is suppressed, missing or based "
+        "on incomplete returns"
+        + (f" ({', '.join(sorted(names.get(c, c) for c in grey))})." if grey else ".")
+    )
+    st.caption(BOUNDARY_CREDIT)
 
 
 def compare_breakdown(

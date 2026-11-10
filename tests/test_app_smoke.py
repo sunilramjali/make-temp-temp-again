@@ -33,3 +33,14 @@ def test_data_pages_draw_charts_when_data_exists(page):
     assert not at.exception
     assert len(at.get("plotly_chart")) >= 1, "page drew no charts"
     assert not [w for w in at.warning if "No data loaded" in w.value]
+
+
+@pytest.mark.skipif(
+    not (HAS_DATA and (ROOT / "data" / "reference" / "london_boroughs.geojson").exists()),
+    reason="run the pipeline with the ONS boundary file first",
+)
+def test_social_housing_draws_borough_maps():
+    at = run("pages/4_Social_housing.py")
+    assert not at.exception
+    maps = [c for c in at.get("plotly_chart") if '"choropleth"' in c.proto.spec]
+    assert len(maps) == 2

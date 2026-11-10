@@ -3,6 +3,7 @@ import streamlit as st
 
 import viz
 from components import (
+    borough_map,
     borough_names,
     caveat,
     chart_title,
@@ -110,12 +111,27 @@ with tabs[3]:
         "Share of social homes re-let in 2024/25",
         "Newham re-let 1.4% of its social stock, the lowest of the boroughs that submitted data.",
     )
-    ranked_bar(churn, "social_relet_rate")
+    left, right = st.columns(2)
+    with left:
+        borough_map(churn, "social_relet_rate")
+    with right:
+        ranked_bar(churn, "social_relet_rate")
     st.caption(
         "Barnet, Camden, Greenwich and Wandsworth did not submit CORE data, so their low rates "
         "are not reliable."
     )
     caveat("social_relet_rate")
+    pct = df[(df.indicator == "social_rent_pct_of_market_rent") & (df.breakdown == "all")]
+    chart_title(
+        "Social re-let rent as a share of market rent, 2024/25",
+        "Averages are not matched by property size.",
+    )
+    left, right = st.columns(2)
+    with left:
+        borough_map(pct, "social_rent_pct_of_market_rent")
+    with right:
+        ranked_bar(pct, "social_rent_pct_of_market_rent")
+    caveat("social_rent_pct_of_market_rent")
     chart_title(
         "Average weekly rent: social re-let vs private market, 2024/25",
         "The gap is what a family leaving TA for private renting has to bridge.",

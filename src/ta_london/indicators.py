@@ -123,12 +123,15 @@ def add_derived(df: pd.DataFrame) -> pd.DataFrame:
     market = df[df["indicator"] == "market_rent_weekly"]
     social = df[df["indicator"] == "social_relet_rent_weekly"]
     if not market.empty and not social.empty:
-        m = market.merge(social[[*keys, "value"]], on=keys, suffixes=("", "_social"))
+        m = market.merge(
+            social[[*keys, "value", "value_status"]], on=keys, suffixes=("", "_social")
+        )
         ok = m["value"].notna() & m["value_social"].notna()
+        incomplete = m["value_status_social"].eq("incomplete")
         out = m[[*keys, "breakdown"]].copy()
         out["indicator"] = "rent_gap_weekly"
         out["value"] = np.where(ok, m["value"] - m["value_social"], np.nan)
-        out["value_status"] = np.where(ok, "ok", "missing")
+        out["value_status"] = np.where(ok, np.where(incomplete, "incomplete", "ok"), "missing")
         out["unit"] = "gbp_per_week"
         extra.append(out[df.columns])
     ages = df[
