@@ -360,10 +360,11 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
 # Only rates and shares are mapped: counts on a map make the biggest boroughs look worst.
 MAP_UNITS = ("percent", "per_1000_households")
 _UNRELIABLE = ("suppressed", "missing", "incomplete")
-# Required with any map drawn from the ONS boundaries (see data/sources.csv).
+# Required with any map drawn from the ONS boundaries: the two statements ONS lists for digital
+# boundaries at ons.gov.uk/methodology/geography/licences. Year = boundary vintage (May 2024).
 BOUNDARY_CREDIT = (
-    "Boundaries: Office for National Statistics licensed under the Open Government Licence "
-    "v3.0. Contains OS data © Crown copyright and database right 2024."
+    "Source: Office for National Statistics licensed under the Open Government Licence v.3.0. "
+    "Contains OS data © Crown copyright and database right 2024."
 )
 
 
