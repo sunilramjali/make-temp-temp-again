@@ -41,7 +41,7 @@ All findings are **descriptive**: they show patterns, not causes. Only open, pub
 
 | Deliverable | Where | What it is |
 |---|---|---|
-| Dashboard | `app/` (run with Streamlit) | Five pages: London boroughs, Demographics, Current solution, Social housing, Policies. Every chart has a data table, definitions and caveats, and a source line |
+| Dashboard | `app/` (run with Streamlit) | Five pages: London boroughs, Who is affected, Where families live, Social housing, Council support. Every chart has a data table, definitions and caveats, and a source line |
 | Evidence brief | [`docs/newham_evidence_brief.md`](docs/newham_evidence_brief.md) | Written findings: who is in TA, placements and length of stay, policies, social housing supply, barriers to entry |
 | Source list | [`docs/source_links.md`](docs/source_links.md) | Every source with its link and how far it was checked |
 | Services map | [`policy/services_map.csv`](policy/services_map.csv) | Services offered, kept separate from evidence of uptake and outcomes, with source pages |
@@ -72,7 +72,7 @@ uv run pytest                         # tests
 uv run ruff check && uv run ruff format --check   # lint and format checks
 ```
 
-`data/processed/` and `data/interim/` are generated and not committed. Policy summaries saved as `.md` files under `policy/` appear on the dashboard's Policies page.
+`data/processed/` and `data/interim/` are generated and not committed. Policy summaries saved as `.md` files under `policy/` appear on the dashboard's Council support page.
 
 ---
 

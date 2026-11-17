@@ -16,11 +16,12 @@ from components import (
 )
 from ta_london.geography import LONDON_CODE, NEWHAM_CODE
 
-st.set_page_config(page_title="Demographics · TA in London", layout="wide")
+st.set_page_config(page_title="Who is affected · TA in London", layout="wide")
 page_header(
     "Who is in temporary accommodation?",
-    "Household type, age, ethnicity and children in temporary accommodation (TA): Newham "
-    "compared with London and England, at 31 March 2026.",
+    "The types of household, ages, ethnicity and children in temporary accommodation (TA). "
+    "Newham is compared with London and England, on 31 March 2026. Hover over a figure to see "
+    "the London value.",
 )
 
 df = need_data()
@@ -46,12 +47,12 @@ def tile(col, title, indicator, breakdown="all"):
 
 c = st.columns(4)
 tile(c[0], "Households in TA", "ta_households")
-tile(c[1], "Share of all households", "ta_households_pct_of_households")
-tile(c[2], "Households with children", "ta_households_with_children")
+tile(c[1], "Share of all Newham households", "ta_households_pct_of_households")
+tile(c[2], "Families with children", "ta_households_with_children")
 tile(c[3], "Children in TA", "ta_children")
 
 others = st.multiselect(
-    "Compare with up to three other boroughs",
+    "Add up to three boroughs to compare",
     [n for n in borough_names(df) if n != "Newham"],
     default=[],
     max_selections=viz.MAX_EXTRA_AREAS,
@@ -60,12 +61,12 @@ areas = ["Newham", "London", "England", *others]
 
 tabs = st.tabs(
     [
-        "Household type",
-        "Age of main applicant",
+        "Type of household",
+        "Age",
         "Ethnicity",
         "Children",
-        "Duty owed",
-        "Pregnancy (priority need)",
+        "Legal duty",
+        "Pregnancy",
     ]
 )
 
@@ -79,8 +80,8 @@ def share_text(indicator, breakdown):
 
 with tabs[0]:
     chart_title(
-        "Household composition, share of households in TA",
-        "Female lone parents are the largest group. "
+        "Type of household, as a share of all households in TA",
+        "Single mothers with children are the largest group. "
         + share_text("ta_households_by_composition_share", "one_adult_female_with_children"),
     )
     compare_breakdown(
@@ -102,8 +103,8 @@ with tabs[0]:
 
 with tabs[1]:
     chart_title(
-        "Age of main applicant, share of households in TA",
-        "Aged 45 or over: Newham's applicants skew a little older than London's.",
+        "Age of the person who applied, as a share of households in TA",
+        "Newham's applicants are a little older than London's: more are aged 45 or over.",
     )
     compare_breakdown(
         df,
@@ -132,12 +133,13 @@ with tabs[2]:
             f"Ethnicity is **not known for {fmt(nk['value'], 'percent')}** of Newham's TA "
             "households"
             + (f" (London {fmt(nk_london['value'], 'percent')})" if nk_london is not None else "")
-            + ". Shares below are of households whose ethnicity is known. Without the borough's "
-            "population mix they say nothing about over- or under-representation."
+            + ". The shares below only count households whose ethnicity is recorded. They can't "
+            "show whether any group is over- or under-represented, because they aren't compared "
+            "with the ethnic mix of the borough as a whole."
         )
-    detail = st.toggle("Show detailed categories", value=False)
+    detail = st.toggle("Show more detailed groups", value=False)
     base = "ta_households_by_ethnicity_detail" if detail else "ta_households_by_ethnicity"
-    chart_title("Ethnicity of main applicant, share of known", "")
+    chart_title("Ethnicity of the person who applied, as a share of those recorded", "")
     compare_breakdown(df, f"{base}_share_of_known", areas)
     caveat(base)
     source_footnote(df[df.indicator == base])
@@ -150,9 +152,9 @@ with tabs[3]:
     )
     k = st.columns(4)
     if kids is not None:
-        k[0].metric("Children in TA (TA1)", fmt(kids["value"], "children"))
+        k[0].metric("Children in TA", fmt(kids["value"], "children"))
     if under18 is not None:
-        k[1].metric("People under 18 (TA8)", fmt(under18["value"], "children"))
+        k[1].metric("Under-18s in TA (second count)", fmt(under18["value"], "children"))
     if families is not None:
         k[2].metric("Families with children", fmt(families["value"], "households"))
     if not by_age.empty:
@@ -161,11 +163,11 @@ with tabs[3]:
         ).sort_values("age")
         u5 = point("ta_children_under_5")
         if u5 is not None:
-            k[3].metric("Children under 5 (TA8)", fmt(u5["value"], "children"))
+            k[3].metric("Children under 5", fmt(u5["value"], "children"))
         chart_title(
-            "Newham: people under 18 in TA, by single year of age",
-            "About 2 children per family, as in London and England. Very few babies (age 0) "
-            "are recorded, a pattern seen in every borough.",
+            "Newham: children in TA, by age",
+            "About 2 children per family, as in London and England. Very few babies (under 1) "
+            "are recorded. This happens in every borough.",
         )
         peak = by_age.loc[by_age.value.idxmax()]
         fig = go.Figure(
@@ -184,29 +186,33 @@ with tabs[3]:
                 hovertemplate="Age %{x}: %{y:,.0f} children<extra></extra>",
             )
         )
-        viz.style(fig, height=320, legend=False, x_title="Age", y_title="children")
+        viz.style(fig, height=320, legend=False, x_title="Age in years", y_title="Children")
         fig.update_xaxes(dtick=1)
         st.plotly_chart(fig, width="stretch", theme=None, config={"displaylogo": False})
         table_view(by_age[["age", "value"]].rename(columns={"age": "Age", "value": "Children"}))
     st.caption(
-        "TA1 and TA8 are separate MHCLG counts and differ slightly; they are not reconciled here."
+        "The government publishes two separate counts of children in TA, from different tables. "
+        "They differ slightly, and we show both as published."
     )
-    if others and st.toggle("Compare the age mix with the boroughs selected above", value=False):
+    if others and st.toggle("Compare ages with the boroughs you added above", value=False):
         compare_breakdown(
             df,
             "ta_children_by_age_share",
             ["Newham", *others],
             order=[f"age_{a}" for a in range(18)],
         )
-        st.caption("Each bar is one year of age as a share of that borough's under-18s in TA.")
+        st.caption(
+            "Each bar shows one year of age, as a share of all children in TA in that borough."
+        )
     caveat("ta_children_by_age")
     source_footnote(df[df.indicator == "ta_children_by_age"])
 
 with tabs[4]:
     chart_title(
-        "Duty under which households are housed, share of households in TA",
-        share_text("ta_households_by_duty_share", "s193_main_duty").replace(".", "")
-        + " are owed the main duty.",
+        "Why the council is housing them, as a share of households in TA",
+        share_text("ta_households_by_duty_share", "s193_main_duty").rstrip(".")
+        + " are owed the main duty: the council must house them until it can offer a settled "
+        "home.",
     )
     compare_breakdown(df, "ta_households_by_duty_share", areas)
     caveat("ta_households_by_duty")
@@ -214,22 +220,23 @@ with tabs[4]:
 
 with tabs[5]:
     st.warning(
-        "**This is not a count of pregnant households in TA.** The TA tables have no pregnancy "
-        "field. Table MD3 records the *priority need* of households newly owed the main duty in "
-        "the quarter. 'Pregnant' counts only households where pregnancy is the recorded reason, "
-        "so pregnant women in families recorded under 'dependent children' are missed."
+        "**This is not a count of pregnant women in temporary accommodation.** The official "
+        "figures don't record pregnancy for households in TA. The closest measure is the main "
+        "reason a household newly qualified for housing (its *priority need*). It only counts "
+        "households where pregnancy was that main reason, so a pregnant woman who already has "
+        "children is usually recorded under 'has children' and is missed."
     )
     preg = point("main_duty_owed_by_priority_need", "pregnant")
     total = point("main_duty_owed_total")
     if preg is not None and total is not None:
         st.metric(
-            "Newham, January to March 2026: newly owed the main duty, priority need pregnancy",
+            "Newham, January to March 2026: households that newly qualified because of pregnancy",
             f"{fmt(preg['value'], 'households')} of {fmt(total['value'], 'households')}",
         )
     chart_title(
-        "Priority need of households newly owed the main duty, share",
-        share_text("main_duty_owed_by_priority_need_share", "pregnant").replace(".", "")
-        + " for pregnancy.",
+        "Main reason households newly qualified for housing, as a share",
+        share_text("main_duty_owed_by_priority_need_share", "pregnant").rstrip(".")
+        + " qualified because of pregnancy.",
     )
     compare_breakdown(
         df,

@@ -1,454 +1,582 @@
 # Indicator dictionary. One entry per indicator: name, label, definition, unit, source_id, caveats.
-# Optional: series_break (text) and series_break_date (where trend charts draw a break marker).
+# definition and caveats are written in plain English for the dashboard's readers.
+# Optional: source_detail (table codes, note numbers and method detail, for checking against the
+# source), series_break (plain text) and series_break_date (where trend charts draw a break marker).
 # Share indicators (_share, _share_of_known) are derived automatically in indicators.py.
 - name: ta_households
   label: Households in temporary accommodation
-  definition: 'Households in temporary accommodation: accommodation arranged by the council pending enquiries
-    or after accepting a homelessness duty (MHCLG note 34).'
+  definition: "Households living in temporary accommodation arranged by the council. This covers
+    households waiting for the council to decide on their case, and households the council has
+    agreed it must help."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG detailed local authority tables, TA1. Definition from MHCLG note 34."
 - name: households_in_area
   label: Households in the area (thousands)
-  definition: 'Household projection MHCLG uses as the denominator for its per-1,000 rate (note 5: 2022-based
-    household projections).'
+  definition: "The estimated number of households in the borough. The government uses it to work
+    out how many households per 1,000 are in temporary accommodation."
   unit: thousand_households
   source_id: mhclg_la_detailed_2026q1
-  caveats: A projection, not a count. Used only as MHCLG's denominator.
+  caveats: "This is an estimate (a projection from earlier data), not a count. It is used only to
+    work out rates."
+  source_detail: "MHCLG note 5: 2022-based household projections, used as the denominator for the
+    per-1,000 rate."
 - name: ta_households_per_1000
   label: Households in TA per 1,000 households
-  definition: 'MHCLG''s own published rate: households in TA divided by the household projection, per
-    1,000.'
+  definition: "Out of every 1,000 households in the borough, how many are in temporary accommodation.
+    This lets big and small boroughs be compared fairly. The government publishes this rate itself."
   unit: per_1000_households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Rates use MHCLG's published denominator.
-    Not recalculated here.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. We show the
+    government's published rate as it is, without recalculating it."
+  source_detail: "MHCLG TA1: households in TA divided by the 2022-based household projection (note 5),
+    per 1,000."
 - name: ta_households_with_children
-  label: Households in TA with dependent children
-  definition: Households in TA that include dependent children.
+  label: Families with children in TA
+  definition: "Households in temporary accommodation that include children who depend on them."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Differs by 1 from the TA2 composition
-    total for Newham (rounding in the source).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. For Newham it
+    differs by 1 from the total in the household-type table, because of rounding in the source."
+  source_detail: "MHCLG TA1 (households with dependent children). Differs by 1 from the TA2
+    composition total for Newham."
 - name: ta_children
   label: Children in TA
-  definition: Number of children in households in TA (TA1).
+  definition: "The number of children living in households in temporary accommodation."
   unit: children
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Not the same count as under-18s in TA8;
-    the two tables are not reconciled.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. The government also
+    publishes a second, separate count of under-18s in temporary accommodation. The two differ
+    slightly and we show both as published."
+  source_detail: "MHCLG TA1. Not reconciled with the TA8 count of people aged under 18."
 - name: ta_bnb_with_children
-  label: Households with children in B&B
-  definition: Households with children in bed and breakfast hotels, including shared annexes.
+  label: Families with children in B&B
+  definition: "Families with children staying in bed and breakfast hotels, including annexes where
+    facilities are shared."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG TA1, B&B including shared annexes."
 - name: ta_bnb_with_children_over_6_weeks
-  label: Households with children in B&B for more than 6 weeks
-  definition: Households with children resident in B&B for more than six weeks. The statutory limit for
-    families with children is six weeks.
+  label: Families with children in B&B for more than 6 weeks
+  definition: "Families with children who have stayed in a B&B for more than six weeks. By law,
+    families with children should not stay in a B&B for longer than six weeks."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Check the exact exemptions in the source
-    file before quoting as a breach.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. There are some legal
+    exceptions to the six-week limit, so check the source before calling a figure a breach of the
+    law."
+  source_detail: "MHCLG TA1. Statutory six-week limit for families with children in B&B."
 - name: ta_households_out_of_area
-  label: Households in TA out of area
-  definition: Households recorded as out of area (placed outside their own council).
+  label: Households in TA housed outside their borough
+  definition: "Households in temporary accommodation that the council has housed outside its own
+    borough."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: 'Snapshot at 31 March 2026 (one quarter, not a trend). Note 36: may include households owed
-    a duty with no accommodation secured, so can slightly overstate placements.'
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. It may also include
+    a few households the council must help but hasn't yet found a place for, so it can slightly
+    overstate the number housed elsewhere."
+  source_detail: "MHCLG TA1, out-of-area households. Note 36: may include households owed a duty with
+    no accommodation secured."
 - name: ta_households_duty_owed_no_accommodation
-  label: Households owed a duty, no accommodation secured
-  definition: Households owed a main duty but still in the accommodation they were accepted from, or making
-    their own arrangements ('homeless at home').
+  label: Households the council must help but hasn't yet housed
+  definition: "Households the council has agreed it must house, who are still living where they were
+    when they applied, or making their own arrangements. This is sometimes called being 'homeless at
+    home'."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG TA1: main duty owed, no accommodation secured."
 - name: ta_households_out_of_area_share
-  label: Share of TA households placed out of area
-  definition: Households recorded as out of area divided by all households in TA, as a percentage.
+  label: Share of households in TA housed outside their borough
+  definition: "Of all households in temporary accommodation, the percentage housed outside the
+    council's own borough."
   unit: percent
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). The out-of-area count (note 36) may include
-    households owed a duty with no accommodation secured, so the share can slightly overstate placements.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. The count of
+    households housed elsewhere may include a few who haven't yet been found a place, so the share can
+    be slightly too high."
+  source_detail: "MHCLG TA1: out-of-area count (note 36) divided by total households in TA."
 - name: ta_households_pct_of_households
-  label: Households in TA as % of all households
-  definition: Households in temporary accommodation divided by all households in the area, as a percentage.
-    Both from the same MHCLG table (TA1); the denominator is MHCLG's household projection (note 5).
+  label: Share of all households living in TA
+  definition: "Of all households in the borough, the percentage living in temporary accommodation."
   unit: percent
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). The same as MHCLG's per-1,000 rate divided
-    by 10. The denominator is a 2022-based projection, not a count.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. It is the same
+    figure as the 'per 1,000 households' rate divided by 10. The number of households in the borough
+    is an estimate, not a count."
+  source_detail: "MHCLG TA1: households in TA divided by the 2022-based household projection (note 5)."
 - name: ta_households_with_children_pct_of_households
-  label: Households in TA with children as % of all households
-  definition: Households in TA with dependent children divided by all households in the area (any type),
-    as a percentage. MHCLG TA1 and its household projection.
+  label: Families with children in TA, as a share of all households
+  definition: "Families with children in temporary accommodation, as a percentage of all households in
+    the borough (of any type)."
   unit: percent
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026. The denominator is all households, not households with children
-    (no such count is in the data), so this is not 'the share of families in TA'.
+  caveats: "This is a count on a single day, 31 March 2026. It compares families in TA with all
+    households, not with all families, because there is no count of families with children in the
+    data. So it is not 'the share of families who are in TA'."
+  source_detail: "MHCLG TA1 households with dependent children divided by the household projection."
 - name: ta_households_by_accommodation_type
-  label: Households in TA by accommodation type
-  definition: 'All households in TA split by type: B&B, nightly paid self-contained, hostel, private sector,
-    council or housing association stock, other.'
+  label: Households in TA by type of home
+  definition: "All households in temporary accommodation, split by the type of home: B&B hotel,
+    nightly-paid self-contained home, hostel, private rented home leased by the council, council or
+    housing association home, or other."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG TA1, accommodation type columns."
 - name: ta_households_by_composition
-  label: Households in TA by household composition
-  definition: TA households split by household makeup. One-adult families split by sex of the adult.
+  label: Households in TA by type of household
+  definition: "Households in temporary accommodation, split by who lives in them, for example single
+    parents, couples with children, or adults only. Single parents are split by whether the parent is
+    a woman or a man."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). 'other_or_not_known' includes categories
-    previously folded into not known (note 38).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. 'Other or not known'
+    now includes some groups that used to be counted as 'not known'."
+  source_detail: "MHCLG TA2. Note 38 on the 'other or not known' category."
 - name: ta_households_by_duty
-  label: Households in TA by duty owed
-  definition: TA households split by the duty under which they are accommodated (s193 main duty, interim,
-    s189B, duty ended, not classifiable).
+  label: Households in TA by legal duty
+  definition: "Households in temporary accommodation, split by why the council is housing them: the
+    main duty (the council must house them until it can offer a settled home), a short-term stay while
+    the council looks into their case, an emergency stay while the council helps them find a home, a
+    duty that has already ended, or unclear."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Interim covers pending enquiries, intentionally
-    homeless, review or appeal, and awaiting referral.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. The short-term group
+    includes households waiting for a decision, those judged to have made themselves homeless, those
+    asking for a decision to be reviewed or appealed, and those waiting to be referred to another
+    council."
+  source_detail: "MHCLG TA3: s193 main duty, interim (pending enquiries, intentionally homeless, review
+    or appeal, awaiting referral), s189B relief, duty ended, not classifiable."
 - name: ta_households_by_age_of_main_applicant
-  label: Households in TA by age of main applicant
-  definition: TA households split by the age band of the main applicant.
+  label: Households in TA by age of the person who applied
+  definition: "Households in temporary accommodation, split by the age group of the person who applied
+    for help."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG TA, age band of main applicant."
 - name: ta_households_by_ethnicity
-  label: Households in TA by ethnicity of main applicant (groups)
-  definition: TA households split by ethnic group of the main applicant.
+  label: Households in TA by ethnicity (main groups)
+  definition: "Households in temporary accommodation, split by the ethnic group of the person who
+    applied for help."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Ethnicity is not known for a large share
-    of households (30% in Newham). Compare with the borough population mix before reading anything into
-    over- or under-representation.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. Ethnicity isn't
+    recorded for many households (30% in Newham). To say whether a group is over- or
+    under-represented, these figures would need to be compared with the ethnic mix of the borough as
+    a whole."
+  source_detail: "MHCLG TA, ethnic group of main applicant."
 - name: ta_households_by_ethnicity_detail
-  label: Households in TA by ethnicity of main applicant (detailed)
-  definition: As the group version, with the detailed categories.
+  label: Households in TA by ethnicity (detailed groups)
+  definition: "The same as the main groups, split into more detailed ethnic groups."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Small counts. Same not-known caveat as
-    the group version.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. Many of the numbers
+    are small. Ethnicity isn't recorded for many households, as with the main groups."
+  source_detail: "MHCLG TA, detailed ethnicity of main applicant."
 - name: ta_families_by_accommodation_type
-  label: Families in TA by accommodation type
-  definition: Households with dependent children in TA split by accommodation type (TA4).
+  label: Families with children in TA by type of home
+  definition: "Families with children in temporary accommodation, split by the type of home they live
+    in."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG TA4."
 - name: ta_families_length_of_stay
-  label: Families in TA by accommodation type and length of stay
-  definition: Households with dependent children in TA, by accommodation type and time spent in TA. Breakdown
-    is <type>__<length band>.
+  label: Families with children in TA by type of home and time spent there
+  definition: "Families with children in temporary accommodation, split by the type of home and how long
+    they have been in temporary accommodation."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Counts current stayers only, so it describes
-    who is in TA now, not completed stays.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. It only counts
+    families still in temporary accommodation on that day, so it shows how long current families have
+    been there so far, not how long a stay usually lasts in total."
+  source_detail: "MHCLG TA4/TA7 length-of-stay bands. Breakdown is <type>__<length band>."
 - name: ta_length_of_stay_median_days
-  label: Median length of stay in TA (days)
-  definition: Median days in TA for households still in TA at quarter end, by accommodation type (TA7).
+  label: Typical (median) number of days in TA
+  definition: "The typical number of days households have spent in temporary accommodation so far, for
+    each type of home. Half of households have been there longer than this, and half for less time."
   unit: days
   source_id: mhclg_la_detailed_2026q1
-  caveats: 'Snapshot at 31 March 2026 (one quarter, not a trend). Note 45: only households still in TA
-    at the quarter end are counted. Zero values in the source (no households of that type) are treated
-    as missing.'
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. It only counts
+    households still in temporary accommodation on that day. Where the source shows zero (no
+    households of that type), we show no figure."
+  source_detail: "MHCLG TA7, median days. Note 45: only households still in TA at quarter end. Zeros
+    treated as missing."
 - name: ta_length_of_stay_mean_days
-  label: Mean length of stay in TA (days)
-  definition: Mean days in TA for households still in TA at quarter end, by accommodation type (TA7).
+  label: Average (mean) number of days in TA
+  definition: "The average number of days households have spent in temporary accommodation so far, for
+    each type of home."
   unit: days
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Same caveats as the median. Means are
-    pulled up by very long stays.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. It only counts
+    households still in temporary accommodation on that day. A few very long stays pull the average
+    up, so the typical (median) figure is often a better guide."
+  source_detail: "MHCLG TA7, mean days. Same notes as the median."
 - name: ta_children_under_18
-  label: People aged under 18 in TA
-  definition: Number of people aged under 18 in TA (TA8).
+  label: Under-18s in TA (second count)
+  definition: "The number of people aged under 18 in temporary accommodation, from a separate government
+    table."
   unit: children
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Not the same count as 'children in TA'
-    in TA1.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. It differs slightly
+    from the main count of children in temporary accommodation. We show both as published."
+  source_detail: "MHCLG TA8. Not reconciled with 'children in TA' in TA1."
 - name: ta_children_by_age
-  label: People aged under 18 in TA by single year of age
-  definition: TA8 split by age 0 to 17.
+  label: Under-18s in TA by age
+  definition: "People aged under 18 in temporary accommodation, split by each year of age from 0 to 17."
   unit: children
   source_id: mhclg_la_detailed_2026q1
-  caveats: 'Snapshot at 31 March 2026 (one quarter, not a trend). Age 0 counts are much lower than other
-    ages in every London borough (all boroughs: 2,021 aged 0 vs 4,619 aged 2; Newham 130 vs 506). The
-    source does not say why, so treat infant counts with care.'
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. Far fewer babies
+    (under 1) are recorded than children of other ages, in every London borough: across all boroughs
+    2,021 babies compared with 4,619 two-year-olds (Newham: 130 compared with 506). The source doesn't
+    say why, so treat the figures for babies with care."
+  source_detail: "MHCLG TA8, single year of age 0 to 17."
 - name: housing_register_households
-  label: Households on the housing register (waiting list)
-  definition: Households on the local authority housing register at the reference date (Live Table 600).
-    2012 to 2025.
+  label: Households on the social housing waiting list
+  definition: "Households on the council's waiting list for social housing (the housing register),
+    each year from 2012 to 2025."
   unit: households
   source_id: mhclg_lt600_2025
-  caveats: 'Table note 1: a register is not the same as households waiting for social housing; councils
-    review registers at different times and some households are on more than one. Figures flagged ''estimated''
-    were imputed by MHCLG. The 2018 value (and earlier) is at 1 April. Large year-on-year changes (for
-    example Brent 2020 to 2021, Lambeth 2024 to 2025) look like register changes, so compare boroughs
-    with care.'
+  caveats: "The waiting list isn't an exact count of households in need. Councils review their lists at
+    different times, and some households are on more than one list. Some figures were estimated by the
+    government where a council didn't send them. Figures for 2018 and earlier are for 1 April rather
+    than 31 March. Big jumps from one year to the next (for example Brent from 2020 to 2021, and
+    Lambeth from 2024 to 2025) look like changes to how the council runs its list, so compare boroughs
+    with care."
+  source_detail: "MHCLG Live Table 600, table note 1. 'Estimated' values imputed by MHCLG."
 - name: social_lettings_total
-  label: New social housing lettings (all types)
-  definition: All new social housing lettings (social rent, affordable rent, intermediate rent; general
-    needs and supported; councils and housing associations) in the financial year (CORE Table 1d).
+  label: Social homes let to new tenants
+  definition: "All social homes let to new tenants during the year (April to March). This includes
+    homes let by councils and housing associations, at social, affordable and intermediate rents, and
+    both ordinary and supported housing."
   unit: lettings
   source_id: mhclg_core_tenancies_2425
-  caveats: CORE data is unweighted and as reported. In 2024/25 Barnet, Camden, Greenwich and Wandsworth
-    did not submit CORE data (table note 10), so their figures are under-counts and rankings that include
-    them are unreliable.
+  caveats: "These are the figures as councils and landlords reported them, without adjustment.
+    Barnet, Camden, Greenwich and Wandsworth didn't send their 2024/25 data, so their figures are too
+    low and any ranking that includes them is unreliable."
+  source_detail: "CORE Table 1d (unweighted). Table note 10 lists councils that did not submit."
 - name: social_lettings_by_type
-  label: New social housing lettings by tenure and landlord
-  definition: Lettings split by tenure (SR social rent, AR affordable rent, IR intermediate rent), need
-    (general needs or supported) and landlord (LA or PRP).
+  label: Social homes let to new tenants, by type of tenancy and landlord
+  definition: "Social homes let to new tenants, split by the type of rent (social, affordable or
+    intermediate), whether it is ordinary or supported housing, and whether the landlord is a council
+    or a housing association."
   unit: lettings
   source_id: mhclg_core_tenancies_2425
-  caveats: CORE data is unweighted and as reported. In 2024/25 Barnet, Camden, Greenwich and Wandsworth
-    did not submit CORE data (table note 10), so their figures are under-counts and rankings that include
-    them are unreliable. Local authority lettings columns are undercounted for councils that did not submit.
+  caveats: "These are the figures as councils and landlords reported them, without adjustment.
+    Barnet, Camden, Greenwich and Wandsworth didn't send their 2024/25 data, so their figures (and
+    especially their council lettings) are too low, and any ranking that includes them is unreliable."
+  source_detail: "CORE Table 1d: SR social rent, AR affordable rent, IR intermediate rent; general needs
+    or supported; LA or PRP landlord. Table note 10."
 - name: social_relet_rent_weekly
-  label: Average weekly social rent for re-lets
-  definition: Geometric mean weekly rent for social housing re-lets in the year (CORE Table 1e).
+  label: Average weekly social rent (homes let to new tenants)
+  definition: "The average weekly rent for social homes let again to a new tenant during the year."
   unit: gbp_per_week
   source_id: mhclg_core_tenancies_2425
-  caveats: 2024/25 only. Geometric means (note 15). CORE data is unweighted and as reported. In 2024/25
-    Barnet, Camden, Greenwich and Wandsworth did not submit CORE data (table note 10), so their figures
-    are under-counts and rankings that include them are unreliable.
+  caveats: "2024/25 only. The average is calculated in a way that reduces the effect of a few very high
+    rents. These are the figures as reported, without adjustment. Barnet, Camden, Greenwich and
+    Wandsworth didn't send their 2024/25 data, so their figures are unreliable."
+  source_detail: "CORE Table 1e, geometric mean (note 15). Unweighted. Table note 10."
 - name: market_rent_weekly
-  label: Average weekly market rent
-  definition: Geometric mean weekly private market rent for the same area (ONS Price Index of Private
-    Rents, as used in CORE Table 1e).
+  label: Average weekly private rent
+  definition: "The average weekly rent for a privately rented home in the same borough."
   unit: gbp_per_week
   source_id: mhclg_core_tenancies_2425
-  caveats: 2024/25 only. Not matched by bedroom size to the social rent.
+  caveats: "2024/25 only. It isn't matched to the social rent by number of bedrooms, so the two
+    averages may cover different sizes of home."
+  source_detail: "ONS Price Index of Private Rents, as used in CORE Table 1e (geometric mean)."
 - name: social_rent_pct_of_market_rent
-  label: Social re-let rent as % of market rent
-  definition: Average social re-let rent divided by average market rent, as published in CORE Table 1e.
+  label: Social rent as a share of private rent
+  definition: "The average social rent as a percentage of the average private rent. For example, 50%
+    means social rent is half the private rent."
   unit: percent
   source_id: mhclg_core_tenancies_2425
-  caveats: 2024/25 only. Averages are not matched by property size.
+  caveats: "2024/25 only. The averages aren't matched by size of home."
+  source_detail: "CORE Table 1e: average social re-let rent divided by average market rent."
 - name: social_relets
-  label: Social housing re-lets
-  definition: New social housing re-lets in the year (CORE Table 1e).
+  label: Social homes let again to a new tenant
+  definition: "Existing social homes that became free and were let to a new tenant during the year."
   unit: lettings
   source_id: mhclg_core_tenancies_2425
-  caveats: 2024/25 only. CORE data is unweighted and as reported. In 2024/25 Barnet, Camden, Greenwich
-    and Wandsworth did not submit CORE data (table note 10), so their figures are under-counts and rankings
-    that include them are unreliable.
+  caveats: "2024/25 only. These are the figures as reported, without adjustment. Barnet, Camden,
+    Greenwich and Wandsworth didn't send their 2024/25 data, so their figures are too low and any
+    ranking that includes them is unreliable."
+  source_detail: "CORE Table 1e, re-lets. Unweighted. Table note 10."
 - name: social_stock_1_april
-  label: Total social housing stock at 1 April
-  definition: Social stock from the Regulator's data return and MHCLG Live Table 116, as used in CORE
-    Table 1e.
+  label: Total number of social homes on 1 April
+  definition: "The total number of social homes in the borough at the start of the year."
   unit: homes
   source_id: mhclg_core_tenancies_2425
-  caveats: 2024/25 only.
+  caveats: "2024/25 only."
+  source_detail: "Regulator of Social Housing data return and MHCLG Live Table 116, as used in CORE
+    Table 1e."
 - name: social_relet_rate
-  label: Share of social stock re-let
-  definition: Re-lets as a percentage of social stock (churn), CORE Table 1e.
+  label: Share of social homes let to a new tenant
+  definition: "Social homes let again to a new tenant during the year, as a percentage of all social
+    homes in the borough. It shows how often a social home becomes free."
   unit: percent
   source_id: mhclg_core_tenancies_2425
-  caveats: 2024/25 only. Under-counted for councils that did not submit CORE data (Barnet, Camden, Greenwich,
-    Wandsworth), so their low rates are not reliable.
+  caveats: "2024/25 only. Barnet, Camden, Greenwich and Wandsworth didn't send their data, so their low
+    figures aren't reliable."
+  source_detail: "CORE Table 1e: re-lets divided by social stock (churn)."
 - name: ta_households_out_of_area_per_1000
-  label: Households in TA out of area per 1,000 households
-  definition: Households owed a TA duty and in another local authority area, per 1,000 households, as
-    published in TA9.
+  label: Households in TA housed outside their borough, per 1,000 households
+  definition: "Out of every 1,000 households in the borough, how many the council has placed in
+    temporary accommodation in another council's area."
   unit: per_1000_households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Note 36 applies (may include duty owed
-    with no accommodation secured).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. It may include a few
+    households the council must help but hasn't yet found a place for."
+  source_detail: "MHCLG TA9 published rate. Note 36 applies."
 - name: ta_out_of_area_by_destination
-  label: Out-of-area TA households by destination region
-  definition: Households owed a TA duty in another local authority, by the region they are in (TA9).
+  label: Households in TA outside their borough, by region
+  definition: "Households placed in temporary accommodation in another council's area, split by the
+    region they were sent to."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend). Regions do not add exactly to the total
-    (a few have no recorded destination), so no shares are calculated.
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time. The regions don't add
+    up exactly to the total, because a few households have no destination recorded, so we don't show
+    percentages."
+  source_detail: "MHCLG TA9, destination region."
 - name: ta_out_of_area_by_accommodation_type
-  label: Out-of-area TA households by accommodation type
-  definition: Households owed a TA duty in another local authority, by type of TA secured, including duty
-    owed with no accommodation secured (TA9_TATYPE).
+  label: Households in TA outside their borough, by type of home
+  definition: "Households placed in temporary accommodation in another council's area, split by the type
+    of home. Also includes households the council must help but hasn't yet found a place for."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG TA9_TATYPE, including duty owed with no accommodation secured."
 - name: ta_out_of_area_by_composition
-  label: Out-of-area TA households by household composition
-  definition: Households owed a TA duty in another local authority, by household makeup (TA9_HHTYPE).
+  label: Households in TA outside their borough, by type of household
+  definition: "Households placed in temporary accommodation in another council's area, split by who
+    lives in them."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026 (one quarter, not a trend).
+  caveats: "This is a count on a single day, 31 March 2026, not a trend over time."
+  source_detail: "MHCLG TA9_HHTYPE."
 - name: relief_end_decisions_total
-  label: Main duty decisions at end of relief duty
-  definition: Eligible households given a main duty decision at the end of the relief duty in the quarter
-    (MD1).
+  label: Decisions on whether the council must house a household
+  definition: "Households who got a decision during the three months on whether the council must house
+    them long term (the main duty). This decision comes after a first period in which the council
+    tries to help them find a home."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Flow during January to March 2026 (one quarter). Small numbers for single boroughs; counts
-    at London and England level are rounded to the nearest 10.
+  caveats: "This counts what happened over three months (January to March 2026). Numbers for a single
+    borough are small and can change a lot from one quarter to the next. London and England totals are
+    rounded to the nearest 10."
+  source_detail: "MHCLG MD1: main duty decisions at the end of the s189B relief duty, eligible
+    households."
 - name: relief_end_decisions
-  label: Main duty decisions at end of relief duty, by decision
-  definition: 'Decisions at the end of the relief duty: accepted (priority need, unintentionally homeless),
-    intentionally homeless, no priority need, not homeless (MD1).'
+  label: Decisions on whether the council must house a household, by outcome
+  definition: "The outcome of those decisions: accepted (the household qualifies and didn't make itself
+    homeless), judged to have made itself homeless, doesn't qualify as a priority, or not homeless."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Flow during January to March 2026 (one quarter). Small numbers for single boroughs; counts
-    at London and England level are rounded to the nearest 10.
+  caveats: "This counts what happened over three months (January to March 2026). Numbers for a single
+    borough are small and can change a lot from one quarter to the next. London and England totals are
+    rounded to the nearest 10."
+  source_detail: "MHCLG MD1: accepted (priority need, unintentionally homeless), intentionally homeless,
+    no priority need, not homeless."
 - name: main_duty_ended_total
-  label: Households whose main duty ended
-  definition: Households whose main homelessness duty ended in the quarter (MD2). The main way households
-    leave TA.
+  label: Households whose case was closed (main duty ended)
+  definition: "Households whose case the council closed during the three months, so it no longer has to
+    house them. This is the main way households leave temporary accommodation."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Flow during January to March 2026 (one quarter). Small numbers for single boroughs; counts
-    at London and England level are rounded to the nearest 10.
+  caveats: "This counts what happened over three months (January to March 2026). Numbers for a single
+    borough are small and can change a lot from one quarter to the next. London and England totals are
+    rounded to the nearest 10."
+  source_detail: "MHCLG MD2: main duty ended."
 - name: main_duty_ended_by_reason
-  label: Households whose main duty ended, by reason
-  definition: 'Why the main duty ended: social housing offer (Part 6) accepted or refused, private rented
-    sector offer accepted or refused, refused TA or lost contact, ceased eligible, intentionally homeless
-    from TA, voluntarily left TA, not known (MD2).'
+  label: Households whose case was closed, by reason
+  definition: "Why the council closed the case: the household accepted or refused a social home,
+    accepted or refused a private rented home, refused temporary accommodation or lost contact, was no
+    longer eligible, was judged to have made itself homeless from temporary accommodation, left of its
+    own accord, or the reason isn't known."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Flow during January to March 2026 (one quarter). Small numbers for single boroughs; counts
-    at London and England level are rounded to the nearest 10. A duty ending is not the same as a household
-    leaving TA on that date, and one quarter can be unusual.
+  caveats: "This counts what happened over three months (January to March 2026). Numbers for a single
+    borough are small and can change a lot from one quarter to the next. London and England totals are
+    rounded to the nearest 10. A case closing isn't the same as a household moving out on that date,
+    and one quarter can be unusual."
+  source_detail: "MHCLG MD2: Part 6 (social housing) offer accepted or refused, private rented sector
+    offer accepted or refused, refused TA or lost contact, ceased eligible, intentionally homeless from
+    TA, voluntarily left TA, not known."
 - name: main_duty_owed_total
-  label: Households owed a main duty
-  definition: Households owed a main homelessness duty in the quarter (MD3).
+  label: Households the council must house (main duty)
+  definition: "Households the council agreed during the three months that it must house until it can
+    offer them a settled home."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Flow during January to March 2026 (one quarter). Small numbers for single boroughs; counts
-    at London and England level are rounded to the nearest 10.
+  caveats: "This counts what happened over three months (January to March 2026). Numbers for a single
+    borough are small and can change a lot from one quarter to the next. London and England totals are
+    rounded to the nearest 10."
+  source_detail: "MHCLG MD3: households owed a main (s193) duty in the quarter."
 - name: main_duty_owed_by_priority_need
-  label: Households owed a main duty, by priority need
-  definition: 'Main duty acceptances by the priority need recorded: dependent children, children but other
-    priority need, pregnant woman, vulnerable, emergency (MD3).'
+  label: Households the council must house, by main reason they qualified
+  definition: "Households the council newly agreed it must house, split by the main reason they
+    qualified (their 'priority need'): they have children, they have children but qualified for another
+    reason, pregnancy, vulnerability, or an emergency such as a fire or flood."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Flow during January to March 2026 (one quarter). Small numbers for single boroughs; counts
-    at London and England level are rounded to the nearest 10. 'Pregnant' counts households where pregnancy
-    is the recorded priority need. A pregnant woman in a household recorded under 'dependent children'
-    is not counted here, so this undercounts pregnant households. It is a flow of new acceptances, not
-    households in TA.
+  caveats: "This counts what happened over three months (January to March 2026). Numbers for a single
+    borough are small and London and England totals are rounded to the nearest 10. 'Pregnant' only
+    counts households where pregnancy was the main reason recorded. A pregnant woman who already has
+    children is usually recorded under 'has children', so this undercounts pregnant households. It
+    counts newly accepted households, not everyone in temporary accommodation."
+  source_detail: "MHCLG MD3, priority need: dependent children, children but other priority need,
+    pregnant woman, vulnerable, emergency."
 - name: main_duty_owed_vulnerable_detail
-  label: 'Households owed a main duty, vulnerable: reason'
-  definition: 'Breakdown of the ''vulnerable'' priority need: old age, physical disability or ill health,
-    mental health, young applicant, domestic abuse, other (MD3).'
+  label: "Households the council must house because they are vulnerable, by reason"
+  definition: "Households that qualified because they are vulnerable, split by the reason: old age,
+    physical disability or ill health, mental health, being a young applicant, domestic abuse, or
+    other."
   unit: households
   source_id: mhclg_la_detailed_2026q1
-  caveats: Flow during January to March 2026 (one quarter). Small numbers for single boroughs; counts
-    at London and England level are rounded to the nearest 10.
+  caveats: "This counts what happened over three months (January to March 2026). Numbers for a single
+    borough are small and can change a lot from one quarter to the next. London and England totals are
+    rounded to the nearest 10."
+  source_detail: "MHCLG MD3, 'vulnerable' priority need breakdown."
 - name: ta_households_avg4q
-  label: Households in TA (4-quarter average)
-  definition: Households in temporary accommodation, average of four quarters. T87 (London, 2002-2025)
-    and T88 (boroughs, 2025).
+  label: Households in TA (yearly average)
+  definition: "Households in temporary accommodation, averaged over the four quarters of each year.
+    Available for London from 2002 to 2025, and for each borough for 2025."
   unit: households
   source_id: tfl_lpp_t87_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot. T88 counts appear rounded to the nearest
-    10; for London 2025 the unrounded T87 value is used.
-  series_break: '2018/2019: MHCLG moved from the P1E to the H-CLIC collection (Trust for London note:
-    2002-2018 discontinued tables, 2019-2025 live tables). Category definitions changed, so values either
-    side of the break are not strictly comparable.'
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures. Borough figures seem to be rounded to the nearest 10; for London in
+    2025 we use the unrounded figure."
+  source_detail: "Trust for London, from MHCLG tables: T87 (London, 2002-2025) and T88 (boroughs, 2025)."
+  series_break: "In 2018/19 the government changed how it collects these figures, and some categories
+    were redefined, so years before and after aren't exactly comparable."
   series_break_date: '2019-07-01'
 - name: ta_households_with_children_avg4q
-  label: Households in TA with children (4-quarter average)
-  definition: Households in TA containing children, average of four quarters (T87, T88).
+  label: Families with children in TA (yearly average)
+  definition: "Households in temporary accommodation that include children, averaged over the four
+    quarters of each year."
   unit: households
   source_id: tfl_lpp_t87_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot.
-  series_break: '2018/2019: MHCLG moved from the P1E to the H-CLIC collection (Trust for London note:
-    2002-2018 discontinued tables, 2019-2025 live tables). Category definitions changed, so values either
-    side of the break are not strictly comparable.'
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures."
+  source_detail: "Trust for London, from MHCLG tables: T87, T88."
+  series_break: "In 2018/19 the government changed how it collects these figures, and some categories
+    were redefined, so years before and after aren't exactly comparable."
   series_break_date: '2019-07-01'
 - name: ta_households_by_accommodation_type_avg4q
-  label: London households in TA by type (4-quarter average)
-  definition: London households in TA by type, average of four quarters, 2002-2025 (T87). 'Private sector'
-    is T87's 'Private rented sector via local authority/housing association'.
+  label: London households in TA by type of home (yearly average)
+  definition: "London households in temporary accommodation by type of home, averaged over the four
+    quarters of each year, 2002 to 2025. 'Private rented, leased by council' means private homes
+    rented through a council or housing association."
   unit: households
   source_id: tfl_lpp_t87_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot.
-  series_break: '2018/2019: MHCLG moved from the P1E to the H-CLIC collection (Trust for London note:
-    2002-2018 discontinued tables, 2019-2025 live tables). Category definitions changed, so values either
-    side of the break are not strictly comparable.'
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures."
+  source_detail: "Trust for London T87. 'Private sector' is T87's 'Private rented sector via local
+    authority/housing association'."
+  series_break: "In 2018/19 the government changed how it collects these figures, and some categories
+    were redefined, so years before and after aren't exactly comparable."
   series_break_date: '2019-07-01'
 - name: ta_households_out_of_area_avg4q
-  label: Households in TA in another district (4-quarter average)
-  definition: Households in TA in another local authority district, average of four quarters (T87, T88).
-    Not part of the TA total (T87 note).
+  label: Households in TA outside their borough (yearly average)
+  definition: "Households in temporary accommodation in another council's area, averaged over the four
+    quarters of each year. Counted separately from the total in temporary accommodation."
   unit: households
   source_id: tfl_lpp_t87_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot.
-  series_break: '2018/2019: MHCLG moved from the P1E to the H-CLIC collection (Trust for London note:
-    2002-2018 discontinued tables, 2019-2025 live tables). Category definitions changed, so values either
-    side of the break are not strictly comparable.'
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures."
+  source_detail: "Trust for London T87, T88. Not part of the TA total (T87 note)."
+  series_break: "In 2018/19 the government changed how it collects these figures, and some categories
+    were redefined, so years before and after aren't exactly comparable."
   series_break_date: '2019-07-01'
 - name: ta_households_duty_owed_no_accommodation_avg4q
-  label: London households owed a duty, no accommodation secured (4-quarter average)
-  definition: Households owed a duty with no accommodation secured, average of four quarters (T87). Not
-    part of the TA total.
+  label: London households the council must help but hasn't yet housed (yearly average)
+  definition: "Households the council must house but hasn't yet found a place for, averaged over the four
+    quarters of each year. Counted separately from the total in temporary accommodation."
   unit: households
   source_id: tfl_lpp_t87_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot.
-  series_break: '2018/2019: MHCLG moved from the P1E to the H-CLIC collection (Trust for London note:
-    2002-2018 discontinued tables, 2019-2025 live tables). Category definitions changed, so values either
-    side of the break are not strictly comparable.'
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures."
+  source_detail: "Trust for London T87: duty owed, no accommodation secured. Not part of the TA total."
+  series_break: "In 2018/19 the government changed how it collects these figures, and some categories
+    were redefined, so years before and after aren't exactly comparable."
   series_break_date: '2019-07-01'
 - name: households_in_area_avg4q
-  label: All households (thousands), T88 denominator
-  definition: Household count Trust for London uses for its per-1,000 rates (T88).
+  label: All households (thousands), used for yearly-average rates
+  definition: "The number of households in each borough that Trust for London uses to work out its
+    'per 1,000 households' rates."
   unit: thousand_households
   source_id: tfl_lpp_t88_2026
-  caveats: Denominator only. Not the same as MHCLG's projection used for the March 2026 rate.
+  caveats: "Used only to work out rates. It isn't the same estimate the government uses for its 31 March
+    2026 rate."
+  source_detail: "Trust for London T88 denominator."
 - name: ta_households_per_1000_avg4q
-  label: Households in TA per 1,000 households (4-quarter average)
-  definition: 'T88 rate: average households in TA over the four quarters to 2025 Q4, per 1,000 households.'
+  label: Households in TA per 1,000 households (yearly average)
+  definition: "Out of every 1,000 households in the borough, how many were in temporary accommodation on
+    average during the year to the end of 2025."
   unit: per_1000_households
   source_id: tfl_lpp_t88_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot.
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures."
+  source_detail: "Trust for London T88 rate, four quarters to 2025 Q4."
 - name: ta_households_out_of_area_per_1000_avg4q
-  label: Households in TA in another district per 1,000 households (4-quarter average)
-  definition: T88 rate for households placed in another local authority district.
+  label: Households in TA outside their borough, per 1,000 households (yearly average)
+  definition: "Out of every 1,000 households in the borough, how many were in temporary accommodation in
+    another council's area, on average during the year."
   unit: per_1000_households
   source_id: tfl_lpp_t88_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot.
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures."
+  source_detail: "Trust for London T88 rate."
 - name: ta_households_with_children_per_1000_avg4q
-  label: Households in TA with children per 1,000 households (4-quarter average)
-  definition: T88 rate for households in TA with children.
+  label: Families with children in TA per 1,000 households (yearly average)
+  definition: "Out of every 1,000 households in the borough, how many were families with children in
+    temporary accommodation, on average during the year."
   unit: per_1000_households
   source_id: tfl_lpp_t88_2026
-  caveats: Average of four quarters (Trust for London, from MHCLG tables), not an end-of-quarter count.
-    Do not compare directly with the MHCLG 31 March 2026 snapshot.
+  caveats: "This is an average over the year, not a count on a single day, so don't compare it directly
+    with the 31 March 2026 figures."
+  source_detail: "Trust for London T88 rate."
 - name: council_homes_started_gla
-  label: Council homes started via GLA programmes
-  definition: Council homes started on site in GLA programmes, by financial year (GLA Table 2).
+  label: Council homes started with Mayor of London funding
+  definition: "Council homes where building started, through Mayor of London (GLA) programmes, each year
+    (April to March)."
   unit: homes
   source_id: gla_council_homes_2026q1
-  caveats: Only homes in GLA programmes. Other council homes are in MHCLG statistics (GLA note), so this
-    is not total supply. 2018-19 runs from September 2018 only. The partial current year (2026-27, to
-    June 2026) is left out, as is the 'Multiple London Boroughs' row.
+  caveats: "Only covers homes funded through Mayor of London programmes. Some council homes are built
+    without this funding, so this isn't all new supply. The 2018-19 figure only covers September 2018
+    onwards. The current, unfinished year (2026-27, up to June 2026) is left out, as are homes listed
+    under several boroughs at once."
+  source_detail: "GLA Table 2. GLA note: other council homes are in MHCLG statistics. 'Multiple London
+    Boroughs' row excluded."
 - name: council_homes_completed_gla
-  label: Council homes completed via GLA programmes
-  definition: Council homes completed in GLA programmes, by financial year (GLA Table 2).
+  label: Council homes finished with Mayor of London funding
+  definition: "Council homes finished through Mayor of London (GLA) programmes, each year (April to
+    March)."
   unit: homes
   source_id: gla_council_homes_2026q1
-  caveats: Only homes in GLA programmes. Other council homes are in MHCLG statistics (GLA note), so this
-    is not total supply. 2018-19 runs from September 2018 only. The partial current year (2026-27, to
-    June 2026) is left out, as is the 'Multiple London Boroughs' row.
+  caveats: "Only covers homes funded through Mayor of London programmes. Some council homes are built
+    without this funding, so this isn't all new supply. The 2018-19 figure only covers September 2018
+    onwards. The current, unfinished year (2026-27, up to June 2026) is left out, as are homes listed
+    under several boroughs at once."
+  source_detail: "GLA Table 2. GLA note: other council homes are in MHCLG statistics. 'Multiple London
+    Boroughs' row excluded."
 - name: rent_gap_weekly
-  label: Weekly gap between private market rent and social re-let rent
-  definition: Average weekly market rent minus average weekly social re-let rent (CORE Table 1e).
+  label: Weekly difference between private rent and social rent
+  definition: "How much more a private rented home costs each week than a social home, on average."
   unit: gbp_per_week
   source_id: mhclg_core_tenancies_2425
-  caveats: 2024/25 only. Geometric means, not matched by property size (note 15).
+  caveats: "2024/25 only. The two averages aren't matched by size of home, and both are calculated in a
+    way that reduces the effect of a few very high rents."
+  source_detail: "CORE Table 1e: average market rent minus average social re-let rent (geometric means,
+    note 15)."
 - name: ta_children_under_5
   label: Children under 5 in TA
-  definition: People aged 0 to 4 in temporary accommodation, the sum of single-year ages in TA8.
+  definition: "Children aged 0 to 4 in temporary accommodation."
   unit: children
   source_id: mhclg_la_detailed_2026q1
-  caveats: Snapshot at 31 March 2026. Age 0 counts are much lower than other ages in every London
-    borough; the source does not say why.
-
+  caveats: "This is a count on a single day, 31 March 2026. Far fewer babies (under 1) are recorded than
+    children of other ages, in every London borough. The source doesn't say why."
+  source_detail: "MHCLG TA8: sum of single years of age 0 to 4."

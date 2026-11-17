@@ -6,8 +6,10 @@ from ta_london.geography import LONDON_CODE, NEWHAM_CODE
 st.set_page_config(page_title="Temporary accommodation in London", layout="wide")
 page_header(
     "Temporary accommodation for families in London",
-    "Families with children and pregnant women in temporary accommodation (TA) across London's "
-    "33 boroughs, with Newham as the case study. Official, published data only.",
+    "When a family becomes homeless, the council must find them somewhere to stay until a "
+    "settled home is available. This is called temporary accommodation (TA). This site looks at "
+    "families with children and pregnant women in TA across London's 33 boroughs, with a closer "
+    "look at Newham. It uses official published figures only.",
 )
 
 df = need_data()
@@ -31,8 +33,8 @@ if share is not None:
     )
     st.markdown(
         '<p style="font-size:1.02rem;opacity:0.8;margin-bottom:1.1rem;max-width:46rem">'
-        "of all households in Newham were in temporary accommodation on "
-        f"31 March 2026, the highest share in London (London overall "
+        "of all households in Newham were living in temporary accommodation on "
+        f"31 March 2026. That is the highest share in London (London as a whole: "
         f"{fmt(share_london['value'], 'percent')}).</p>",
         unsafe_allow_html=True,
     )
@@ -40,15 +42,15 @@ if share is not None:
 tiles = [
     ("Households in TA", point("ta_households"), "31 March 2026"),
     ("Children in TA", point("ta_children"), "31 March 2026"),
-    ("On the housing register", point("housing_register_households"), "31 March 2025"),
-    ("New social lettings", point("social_lettings_total"), "2024/25"),
+    ("On the social housing waiting list", point("housing_register_households"), "31 March 2025"),
+    ("Social homes let to new tenants", point("social_lettings_total"), "April 2024 to March 2025"),
 ]
 cols = st.columns(4)
 for col, (title, r, when) in zip(cols, tiles, strict=True):
     if r is not None:
         col.metric(title, fmt(r["value"], r["unit"]), help=f"Newham, {when}")
 
-st.subheader("Key findings")
+st.subheader("What the figures show")
 nightly = point("ta_families_by_accommodation_type_share", "nightly_paid")
 five_plus = point("ta_families_length_of_stay", "nightly_paid__5_plus_years")
 prs = point("main_duty_ended_by_reason_share", "prs_offer_accepted")
@@ -59,61 +61,76 @@ gap = point("rent_gap_weekly")
 findings = []
 if nightly is not None and five_plus is not None:
     findings.append(
-        f"**{fmt(nightly['value'], 'percent')} of Newham families in TA are in nightly-paid, "
-        f"privately managed homes**, and {fmt(five_plus['value'], 'households')} of those "
-        "families have been there five years or more."
+        f"**{fmt(nightly['value'], 'percent')} of Newham families in temporary accommodation "
+        "live in homes the council rents from private owners by the night.** "
+        f"{fmt(five_plus['value'], 'households')} of these families have been there for five "
+        "years or more."
     )
 if oa is not None:
     findings.append(
-        f"**{fmt(oa['value'], 'percent')} of Newham's TA households are placed outside the "
-        "borough**, most of them elsewhere in London."
+        f"**{fmt(oa['value'], 'percent')} of Newham's households in temporary accommodation are "
+        "housed outside Newham**, most of them elsewhere in London."
     )
 if prs is not None and social is not None and ended is not None:
     findings.append(
-        "**In January to March 2026, more Newham households left the homelessness duty through "
-        "private renting than through social housing**: "
-        f"{fmt(prs['value'], 'percent')} of {fmt(ended['value'], 'households')} ended duties were "
-        f"accepted private rented offers, {fmt(social['value'], 'percent')} social housing offers. "
-        "Across London it was the other way round. This is one quarter with small numbers, so it "
-        "may not be typical."
+        "**From January to March 2026, more Newham families moved on to a private rented home "
+        "than to a social home.** Of the "
+        f"{fmt(ended['value'], 'households')} cases the council closed, "
+        f"{fmt(prs['value'], 'percent')} accepted a private rented home and "
+        f"{fmt(social['value'], 'percent')} a social home. Across London it was the other way "
+        "round. These are three months of small numbers, so they may not be typical."
     )
 relet = point("social_relet_rate")
 if relet is not None:
     findings.append(
-        "**Social housing is scarce and turns over slowly.** Newham's housing register has grown "
-        f"every year since 2018, while it re-let {fmt(relet['value'], 'percent')} of its social "
-        "homes in 2024/25."
+        "**Social homes rarely become free.** Newham's waiting list has grown every year since "
+        f"2018, but only {fmt(relet['value'], 'percent')} of its social homes were let to a new "
+        "tenant in 2024/25."
     )
 if gap is not None:
     findings.append(
-        f"**Private rents are far above social rents**: about {fmt(gap['value'], 'gbp_per_week')} "
-        "a week more on average, the gap a family must bridge to leave TA for private renting."
+        f"**Private rents are far higher than social rents**: about "
+        f"{fmt(gap['value'], 'gbp_per_week')} a week more on average. A family moving from "
+        "temporary accommodation to a private rented home has to find this difference."
     )
 findings.append(
-    "**Pregnant households are not counted in the TA statistics.** The nearest measure (pregnancy "
-    "as the priority need for new acceptances) undercounts them."
+    "**Nobody counts how many pregnant women are in temporary accommodation.** The closest "
+    "figure counts only households where pregnancy was the main reason they qualified for help, "
+    "so it misses many."
 )
 st.markdown("\n".join(f"- {f}" for f in findings))
 st.caption(
-    "Descriptive findings from official statistics. They show patterns, not causes. "
-    "Definitions and caveats are on each page."
+    "These findings describe patterns in official figures. They don't explain the causes. Each "
+    "page explains what the figures measure and what to watch out for."
 )
 
-st.subheader("Explore")
+st.subheader("Explore the data")
 g = st.columns(5)
 pages = [
-    ("pages/1_London_boroughs.py", "London boroughs", "Rank all 33 boroughs; London since 2002."),
-    ("pages/2_Demographics.py", "Demographics", "Who is in TA: households, age, children."),
-    ("pages/3_Current_solution.py", "Current solution", "Placements, length of stay, exits."),
-    ("pages/4_Social_housing.py", "Social housing", "Register, lettings, supply, rents."),
-    ("pages/5_Policies.py", "Policies", "Services offered vs evidence they work."),
+    (
+        "pages/1_London_boroughs.py",
+        "London boroughs",
+        "Compare all 33 boroughs, and London since 2002.",
+    ),
+    ("pages/2_Who_is_affected.py", "Who is affected", "Family types, ages and children."),
+    (
+        "pages/3_Where_families_live.py",
+        "Where families live",
+        "Type of home, time spent, moving on.",
+    ),
+    (
+        "pages/4_Social_housing.py",
+        "Social housing",
+        "Waiting lists, new lettings, new homes, rents.",
+    ),
+    ("pages/5_Council_support.py", "Council support", "What councils offer, and proof it is used."),
 ]
 for col, (path, title, blurb) in zip(g, pages, strict=True):
     with col:
         st.page_link(path, label=title)
         st.caption(blurb)
 
-with st.expander("Data sources and freshness"):
+with st.expander("Where the data comes from, and how recent it is"):
     freshness = (
         df.groupby("source_id")
         .agg(indicators=("indicator", "nunique"), latest=("period_end", "max"))
@@ -128,6 +145,15 @@ with st.expander("Data sources and freshness"):
         )
         freshness = freshness[
             ["title", "publisher", "reference_period", "indicators", "latest", "source_id"]
-        ]
+        ].rename(
+            columns={
+                "title": "Source",
+                "publisher": "Published by",
+                "reference_period": "Covers",
+                "indicators": "Measures used",
+                "latest": "Most recent date",
+                "source_id": "Reference code",
+            }
+        )
     st.dataframe(freshness, hide_index=True, width="stretch")
-    st.caption("Full list with links and how far each was checked: Policies page, Source links.")
+    st.caption("Full list with links: Council support page, Source links tab.")

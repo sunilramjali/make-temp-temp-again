@@ -31,7 +31,50 @@ NO_DATA_MESSAGE = (
 # Set to "1" to stop the app building the data itself (used by tests).
 NO_AUTOBUILD_ENV = "TA_LONDON_NO_AUTOBUILD"
 _BUILD_LOCK = threading.Lock()
-DESCRIPTIVE = "Descriptive, not causal: patterns shown here do not prove cause."
+DESCRIPTIVE = (
+    "These figures describe what is happening. They don't show why: a difference between two "
+    "boroughs does not mean one thing caused another."
+)
+
+# Plain-English meanings for words that appear across the site. Shown in the sidebar on every page.
+GLOSSARY = {
+    "Temporary accommodation (TA)": "A place the council finds for a homeless household to stay "
+    "until a settled home is found. It can last months or years.",
+    "Nightly-paid accommodation": "Flats or rooms rented by the council from private owners by "
+    "the night. Usually self-contained, often expensive.",
+    "B&B": "Bed and breakfast hotel, often with shared kitchens and bathrooms. By law, families "
+    "with children should not stay more than six weeks.",
+    "Placed out of area": "Housed outside the household's own borough.",
+    "Main duty": "The council's legal duty to house a homeless household until it can offer a "
+    "settled home. It ends when the household accepts (or refuses) a suitable offer, among "
+    "other reasons.",
+    "Priority need": "The legal reason a household qualifies for the main duty, such as having "
+    "children or being pregnant.",
+    "Housing register": "The council's waiting list for social housing.",
+    "Social housing": "Homes let by councils and housing associations at below-market rents.",
+    "New lettings / re-lets": "A social home let to a new tenant. Re-lets are existing homes that "
+    "became free; new lettings also include newly built homes.",
+    "Re-let rate": "Re-lets as a share of all social homes in the borough: how often a social "
+    "home becomes free.",
+    "Private rented offer": "An offer of a home from a private landlord, which ends the main duty "
+    "if accepted.",
+    "Per 1,000 households": "A rate that allows fair comparison between big and small boroughs.",
+    "Yearly average": "The average of the four quarterly counts in a year (published by Trust for "
+    "London). Slightly different from a single-day count.",
+    "Hidden or not published": "The source doesn't publish some small numbers, so people can't be "
+    "identified, or a council didn't send its data. These are shown as gaps, never as zero.",
+    "MHCLG": "Ministry of Housing, Communities and Local Government, which publishes the national "
+    "homelessness figures.",
+    "GLA": "Greater London Authority (the Mayor of London's office).",
+    "CORE": "The national record of new social housing lettings.",
+}
+
+
+def glossary() -> None:
+    """Sidebar glossary of the terms used on the site, so no page needs to assume them."""
+    with st.sidebar.expander("What do these words mean?"):
+        for term, meaning in GLOSSARY.items():
+            st.markdown(f"**{term}**: {meaning}")
 
 
 def build_data_if_missing() -> str | None:
@@ -114,13 +157,37 @@ def label(indicator: str) -> str:
 
 
 _LABELS = {
-    "bnb": "B&B",
-    "la_ha_stock": "Council or HA stock",
-    "nightly_paid": "Nightly paid",
-    "private_sector": "Private sector",
+    "bnb": "B&B hotel",
+    "la_ha_stock": "Council or housing association home",
+    "nightly_paid": "Nightly-paid, private",
+    "private_sector": "Private rented, leased by council",
+    "hostel": "Hostel",
+    "other": "Other",
     "other_or_not_known": "Other or not known",
-    "s193_main_duty": "Main duty (s193)",
-    "s189b_emergency_accommodation": "Emergency (s189B)",
+    "not_known": "Not known",
+    "adult_only": "Adults only, no children",
+    "one_adult_female_with_children": "Single mother with children",
+    "one_adult_male_with_children": "Single father with children",
+    "one_adult_other_sex_with_children": "Single parent (other) with children",
+    "two_adults_with_children": "Couple with children",
+    "three_plus_adults_with_children": "Three or more adults with children",
+    "less_than_6_months": "Under 6 months",
+    "1_to_2_years": "1 to 2 years",
+    "2_to_5_years": "2 to 5 years",
+    "16_to_17": "16 to 17",
+    "18_to_24": "18 to 24",
+    "25_to_34": "25 to 34",
+    "35_to_44": "35 to 44",
+    "45_to_54": "45 to 54",
+    "55_to_64": "55 to 64",
+    "65_to_74": "65 to 74",
+    "s193_main_duty": "Main duty (council must house until a settled home)",
+    "s189b_emergency_accommodation": "Emergency stay while the council helps (relief duty)",
+    "dependent_children": "Has children",
+    "pregnant": "Pregnant",
+    "vulnerable": "Vulnerable (e.g. illness, disability, age)",
+    "emergency": "Emergency (e.g. fire or flood)",
+    "ceased_eligible": "No longer eligible",
     "asian_other": "Asian: other",
     "white_british": "White British",
     "75_plus": "75 and over",
@@ -130,9 +197,9 @@ _LABELS = {
     "prs_offer_refused": "Private rented offer refused",
     "social_offer_accepted": "Social housing offer accepted",
     "social_offer_refused": "Social housing offer refused",
-    "refused_ta_withdrew_or_lost_contact": "Refused TA, withdrew or lost contact",
-    "intentionally_homeless_from_ta": "Intentionally homeless from TA",
-    "voluntarily_left_ta": "Voluntarily left TA",
+    "refused_ta_withdrew_or_lost_contact": "Refused the temporary home, withdrew or lost contact",
+    "intentionally_homeless_from_ta": "Judged to have made themselves homeless from it",
+    "voluntarily_left_ta": "Left of their own accord",
     "no_accommodation_secured": "Duty owed, no accommodation secured",
     "children_other_priority_need": "Children, other priority need",
     "yorkshire_humber": "Yorkshire and the Humber",
@@ -156,10 +223,12 @@ def caveat(indicator: str, show_definition: bool = True) -> None:
     entry = dictionary().get(indicator)
     if not entry:
         return
-    with st.expander("Definition and caveats", expanded=False):
+    with st.expander("What this measures, and what to watch out for", expanded=False):
         if show_definition:
-            st.markdown(f"**Definition.** {entry['definition']}")
-        st.markdown(f"**Caveats.** {entry['caveats']}")
+            st.markdown(f"**What it measures.** {entry['definition']}")
+        st.markdown(f"**Watch out for.** {entry['caveats']}")
+        if entry.get("source_detail"):
+            st.caption(f"Source detail: {entry['source_detail']}")
 
 
 def source_footnote(df: pd.DataFrame) -> None:
@@ -171,7 +240,7 @@ def source_footnote(df: pd.DataFrame) -> None:
     for sid in ids:
         match = register[register["source_id"] == sid] if not register.empty else register
         if match.empty:
-            parts.append(f"`{sid}` (not in sources.csv)")
+            parts.append(f"{sid} (source details missing)")
         else:
             r = match.iloc[0]
             parts.append(f"{r['title']} ({r['publisher']}; {r['reference_period']})")
@@ -201,6 +270,7 @@ def apply_style() -> None:
 
 def page_header(title: str, subtitle: str) -> None:
     apply_style()
+    glossary()
     st.title(title)
     st.markdown(
         f'<p style="font-size:1.02rem;opacity:0.8;margin:-0.3rem 0 0.4rem 0">{subtitle}</p>',
@@ -224,7 +294,7 @@ def chart_title(title: str, subtitle: str = "") -> None:
 def fmt(value: float, unit: str) -> str:
     """Readable number for labels, tiles and tooltips."""
     if value is None or pd.isna(value):
-        return "n/a"
+        return "not available"
     if unit == "percent":
         return f"{value:.1f}%"
     if unit in ("per_1000_households",):
@@ -240,16 +310,25 @@ def fmt(value: float, unit: str) -> str:
 
 def unit_label(unit: str) -> str:
     return {
-        "percent": "%",
+        "percent": "% (share)",
         "per_1000_households": "per 1,000 households",
         "gbp_per_week": "£ per week",
         "thousand_households": "thousand households",
     }.get(unit, unit.replace("_", " "))
 
 
+STATUS_TEXT = {
+    "ok": "",
+    "estimated": "Estimated by MHCLG",
+    "suppressed": "Not published (small number)",
+    "missing": "No data",
+    "incomplete": "Incomplete: council data missing",
+}
+
+
 def table_view(frame: pd.DataFrame, key: str | None = None) -> None:
     """Every chart has a table twin: the accessible way to read exact values."""
-    with st.expander("Show data table"):
+    with st.expander("See the exact numbers"):
         st.dataframe(frame, hide_index=True, width="stretch", key=key)
 
 
@@ -293,7 +372,7 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
             textfont={"color": viz.tok("ink"), "size": 12},
             cliponaxis=False,
             customdata=[
-                fmt(v, unit) + (" (incomplete data)" if i else "")
+                fmt(v, unit) + (" (incomplete: some data missing)" if i else "")
                 for v, i in zip(shown["value"], is_incomplete, strict=True)
             ],
             hovertemplate="%{y}: %{customdata}<extra></extra>",
@@ -326,21 +405,27 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
         refs = sub[sub["area_code"].isin([LONDON_CODE, ENGLAND_CODE])].dropna(subset=["value"])
         if not refs.empty:
             notes.append(
-                "Totals: "
+                "For scale, the totals are: "
                 + "; ".join(f"{r.area_name} {fmt(r.value, unit)}" for r in refs.itertuples())
+                + "."
             )
     if not hidden.empty:
         notes.append(
-            "Not shown (suppressed or missing in the source): "
+            "Left out because the source doesn't publish a figure: "
             + ", ".join(sorted(hidden["area_name"].unique()))
+            + "."
         )
     estimated = shown[shown["value_status"] == "estimated"]
     if not estimated.empty:
-        notes.append("Estimated by MHCLG: " + ", ".join(sorted(estimated["area_name"].unique())))
+        notes.append(
+            "Estimated by MHCLG (the council didn't send full figures): "
+            + ", ".join(sorted(estimated["area_name"].unique()))
+            + "."
+        )
     if is_incomplete.any():
         notes.append(
-            "Hatched: incomplete returns, so the value is an under-count or unreliable: "
-            + ", ".join(sorted(shown.loc[is_incomplete, "area_name"].unique()))
+            "Striped bars: the council's data is incomplete, so the real figure is probably "
+            "higher: " + ", ".join(sorted(shown.loc[is_incomplete, "area_name"].unique())) + "."
         )
     for n in notes:
         st.caption(n)
@@ -348,10 +433,10 @@ def ranked_bar(sub: pd.DataFrame, indicator: str) -> None:
     table_view(
         pd.DataFrame(
             {
-                "Rank": rank.index + 1,
+                "Rank (1 = highest)": rank.index + 1,
                 "Borough": rank["area_name"],
                 "Value": [fmt(v, unit) for v in rank["value"]],
-                "Status": rank["value_status"],
+                "Note": rank["value_status"].map(STATUS_TEXT).fillna(""),
             }
         )
     )
@@ -379,7 +464,7 @@ def borough_map(sub: pd.DataFrame, indicator: str) -> None:
     reliable value (suppressed, missing or incomplete returns) are grey, never shaded as low.
     Newham is outlined in the accent colour. Hidden if the boundary file isn't built."""
     if not BOUNDARIES_GEOJSON.exists():
-        st.caption("Map unavailable: run the pipeline with the ONS boundary file in data/raw/ons/.")
+        st.caption("The map isn't available yet (the borough boundary file hasn't been built).")
         return
     boroughs = sub[sub["area_code"].str.startswith("E09")]
     if boroughs.empty:
@@ -394,7 +479,11 @@ def borough_map(sub: pd.DataFrame, indicator: str) -> None:
     grey = [c for c in all_codes if c not in set(reliable["area_code"])]
     status = dict(boroughs[["area_code", "value_status"]].values)
     values = dict(boroughs[["area_code", "value"]].values)
-    reason = {"incomplete": "incomplete returns", "suppressed": "suppressed", "missing": "no data"}
+    reason = {
+        "incomplete": "council data incomplete",
+        "suppressed": "not published",
+        "missing": "no data",
+    }
 
     ramp = viz.tok("ordinal")
     line = {"color": viz.tok("surface"), "width": 0.8}
@@ -428,7 +517,7 @@ def borough_map(sub: pd.DataFrame, indicator: str) -> None:
                 marker={"line": line},
                 text=[
                     f"{names.get(c, c)}: {fmt(values.get(c), unit)} "
-                    f"(not shaded: {reason.get(status.get(c), 'no data')})"
+                    f"(grey: {reason.get(status.get(c), 'no data')})"
                     for c in grey
                 ],
             )
@@ -455,9 +544,9 @@ def borough_map(sub: pd.DataFrame, indicator: str) -> None:
     )
     _show(fig)
     st.caption(
-        "Newham outlined. Grey: not shaded because the value is suppressed, missing or based "
-        "on incomplete returns"
-        + (f" ({', '.join(sorted(names.get(c, c) for c in grey))})." if grey else ".")
+        "Darker means higher. Newham has a blue outline. Grey boroughs have no reliable figure "
+        "(not published, or the council's data is incomplete)"
+        + (f": {', '.join(sorted(names.get(c, c) for c in grey))}." if grey else ".")
     )
     st.caption(BOUNDARY_CREDIT)
 
@@ -541,7 +630,7 @@ def compare_breakdown(
     gaps = sub[sub["value"].isna()]
     if not gaps.empty:
         st.caption(
-            "No value (suppressed or not applicable in the source): "
+            "No figure published for: "
             + ", ".join(
                 sorted({f"{r.area_name}: {pretty(r.breakdown)}" for r in gaps.itertuples()})
             )
@@ -630,7 +719,7 @@ def trend(df: pd.DataFrame, indicator: str, area_names: list[str], breakdown: st
         )
     gaps = sub[sub["value"].isna()]
     if not gaps.empty:
-        st.caption(f"{len(gaps)} point(s) missing in the source, shown as gaps.")
+        st.caption(f"{len(gaps)} year(s) have no published figure; these show as gaps in the line.")
     table = sub.pivot_table(index="period", columns="area_name", values="value")
     table = table[[a for a in present if a in table.columns]]
     table_view(table.map(lambda v: fmt(v, unit)).reset_index(names="Period"))
@@ -647,7 +736,7 @@ def add_series_break(fig: go.Figure, indicator: str) -> None:
         y=1,
         yref="paper",
         yanchor="bottom",
-        text="Series break",
+        text="Counting method changed",
         showarrow=False,
         font={"size": 11, "color": viz.tok("muted")},
     )
@@ -684,10 +773,33 @@ def stacked_trend(df: pd.DataFrame, indicator: str, area_name: str, order=None) 
     fig.update_layout(hovermode="x unified", margin={"r": 150})
     _show(fig)
     if dictionary().get(indicator, {}).get("series_break"):
-        st.caption("Series break: " + dictionary()[indicator]["series_break"])
+        st.caption(
+            "Counting method changed, so compare before and after with care: "
+            + dictionary()[indicator]["series_break"]
+        )
     table = sub.pivot_table(index="period", columns="breakdown", values="value")[keys]
     table.columns = [pretty(c) for c in table.columns]
     table_view(table.map(lambda v: fmt(v, unit)).reset_index(names="Year"))
+
+
+def friendly_period(period: str, period_type: str, period_end) -> str:
+    """The source's period written out in words, e.g. '2026-Q1' -> '31 March 2026'."""
+    end = pd.Timestamp(period_end)
+    if period_type in ("quarter_end", "snapshot"):
+        return f"{end.day} {end:%B %Y}"
+    if period_type == "quarter":
+        start = end - pd.offsets.QuarterBegin(startingMonth=1)
+        return f"{start:%B} to {end:%B %Y}"
+    if period_type == "financial_year":
+        return f"April {end.year - 1} to March {end.year}"
+    if period_type == "calendar_year_average":
+        return f"{period} (yearly average)"
+    return period
+
+
+def _ordinal(n: int) -> str:
+    suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
 
 
 def indicator_explorer(
@@ -704,18 +816,23 @@ def indicator_explorer(
         i for i in indicators if not df[(df["indicator"] == i) & (df["breakdown"] == "all")].empty
     ]
     c1, c2 = st.columns([3, 1])
-    indicator = c1.selectbox("Indicator", available, format_func=label)
+    indicator = c1.selectbox("What do you want to compare?", available, format_func=label)
     sub = df[(df["indicator"] == indicator) & (df["breakdown"] == "all")]
-    periods = sub.sort_values("period_end", ascending=False)["period"].unique().tolist()
-    period = c2.selectbox("Period", periods)
+    periods = sub.sort_values("period_end", ascending=False).drop_duplicates("period")
+    words = {
+        r.period: friendly_period(r.period, r.period_type, r.period_end)
+        for r in periods.itertuples()
+    }
+    period = c2.selectbox("When", list(words), format_func=words.get)
     sub = sub[sub["period"] == period]
     newham = sub[sub["area_code"] == NEWHAM_CODE]
     rank_note = ""
     boroughs = sub[sub["area_code"].str.startswith("E09")].dropna(subset=["value"])
     if not newham.empty and not boroughs.empty and pd.notna(newham["value"].iloc[0]):
         rank = int((boroughs["value"] > newham["value"].iloc[0]).sum()) + 1
-        rank_note = f"Newham ranks {rank} of {len(boroughs)}. "
-    chart_title(label(indicator), f"{rank_note}{period}. Newham highlighted.")
+        place = "the highest" if rank == 1 else f"{_ordinal(rank)} highest"
+        rank_note = f"Newham is {place} of {len(boroughs)} boroughs. "
+    chart_title(label(indicator), f"{rank_note}{words[period]}. Newham is shown in blue.")
     if not sub.empty and sub["unit"].iloc[0] in MAP_UNITS:
         left, right = st.columns(2)
         with left:
@@ -724,6 +841,9 @@ def indicator_explorer(
             ranked_bar(sub, indicator)
     else:
         ranked_bar(sub, indicator)
-        st.caption("Map shown for rates and shares only, so large boroughs don't look worst.")
+        st.caption(
+            "No map for counts: big boroughs would always look worst. Pick a share or a "
+            "'per 1,000 households' measure to see a map."
+        )
     caveat(indicator)
     source_footnote(sub)

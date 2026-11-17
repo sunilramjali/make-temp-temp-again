@@ -16,11 +16,11 @@ from components import (
 )
 from ta_london.geography import NEWHAM_CODE
 
-st.set_page_config(page_title="Current solution · TA in London", layout="wide")
+st.set_page_config(page_title="Where families live · TA in London", layout="wide")
 page_header(
-    "Where families are placed, and how they leave",
-    "How families in temporary accommodation (TA) are housed, how long they have been there, "
-    "how the homelessness duty ends, and what Newham's policies offer.",
+    "Where families live, and how they move on",
+    "The kinds of temporary accommodation (TA) families live in, how long they stay, how they "
+    "move on to a settled home, and what Newham's policies offer.",
 )
 
 df = need_data()
@@ -28,7 +28,7 @@ if df is None:
     st.stop()
 
 others = st.multiselect(
-    "Compare with up to three other boroughs",
+    "Add up to three boroughs to compare",
     [n for n in borough_names(df) if n != "Newham"],
     default=[],
     max_selections=viz.MAX_EXTRA_AREAS,
@@ -53,25 +53,30 @@ def tile(col, title, indicator, breakdown="all"):
 
 
 c = st.columns(4)
-tile(c[0], "Families in nightly-paid", "ta_families_by_accommodation_type_share", "nightly_paid")
-tile(c[1], "Placed out of area", "ta_households_out_of_area_share")
-tile(c[2], "Duties ended (quarter)", "main_duty_ended_total")
-tile(c[3], "Ended via private renting", "main_duty_ended_by_reason_share", "prs_offer_accepted")
+tile(
+    c[0],
+    "Families in nightly-paid homes",
+    "ta_families_by_accommodation_type_share",
+    "nightly_paid",
+)
+tile(c[1], "Housed outside Newham", "ta_households_out_of_area_share")
+tile(c[2], "Cases closed, Jan to Mar 2026", "main_duty_ended_total")
+tile(c[3], "Moved on to private renting", "main_duty_ended_by_reason_share", "prs_offer_accepted")
 
 tabs = st.tabs(
     [
-        "Accommodation type",
-        "Length of stay",
-        "How households leave TA",
-        "Out of area",
-        "Policies in brief",
+        "Type of home",
+        "Time spent in TA",
+        "Moving on",
+        "Housed outside the borough",
+        "Newham's policies",
     ]
 )
 
 with tabs[0]:
     chart_title(
-        "Families with children in TA, by type of accommodation",
-        "Nightly-paid, privately managed homes are the main form of TA for Newham families.",
+        "Families with children in TA, by type of home",
+        "Most Newham families are in homes the council rents from private owners by the night.",
     )
     compare_breakdown(
         df,
@@ -81,14 +86,14 @@ with tabs[0]:
     )
     caveat("ta_families_by_accommodation_type")
     source_footnote(df[df.indicator == "ta_families_by_accommodation_type"])
-    chart_title("Households in TA placed in another council's area", "")
+    chart_title("Households in TA housed outside their own borough", "")
     compare_breakdown(df, "ta_households_out_of_area_share", areas)
     caveat("ta_households_out_of_area_share")
 
 with tabs[1]:
     chart_title(
-        "How long families have been in TA, within each accommodation type",
-        "Most Newham families in nightly-paid TA have been there more than a year.",
+        "How long families have been in TA, for each type of home",
+        "Most Newham families in nightly-paid homes have been there for more than a year.",
     )
     types = [
         "nightly_paid",
@@ -98,7 +103,7 @@ with tabs[1]:
         "hostel",
         "other",
     ]
-    chosen = st.selectbox("Accommodation type", types, format_func=pretty)
+    chosen = st.selectbox("Type of home", types, format_func=pretty)
     bands = [
         "less_than_6_months",
         "6_to_12_months",
@@ -113,11 +118,14 @@ with tabs[1]:
         order=[f"{chosen}__{b}" for b in bands],
     )
     st.caption(
-        "Shares are within the chosen type. Small types are often suppressed in the source "
-        "(shown as 'no value')."
+        "Shares add up to 100% within the chosen type of home. For less common types, the "
+        "government often doesn't publish figures because the numbers are small."
     )
     caveat("ta_families_length_of_stay")
-    chart_title("Median days in TA, by type", "All households still in TA at 31 March 2026.")
+    chart_title(
+        "Typical number of days in TA, by type of home",
+        "The middle value (median) for all households still in TA on 31 March 2026.",
+    )
     med = latest_period(
         df[(df.indicator == "ta_length_of_stay_median_days") & df.area_name.isin(areas)]
     )
@@ -130,25 +138,26 @@ with tabs[1]:
 
 with tabs[2]:
     chart_title(
-        "Why the main homelessness duty ended, January to March 2026",
-        "In this quarter, private rented offers ended more of Newham's 82 duties than social "
-        "housing offers; in London and England it was the other way round. One quarter, small "
-        "numbers.",
+        "How cases were closed, January to March 2026",
+        "In these three months, more of Newham's 82 closed cases ended with a private rented "
+        "home than a social home. In London and England it was the other way round. The numbers "
+        "are small, so this may not be typical.",
     )
     st.write(
-        "Ending the main duty is the main way households leave TA. This is one quarter's flow, "
-        "so small boroughs can swing a lot between quarters."
+        "Most families leave temporary accommodation when the council closes their case (ends "
+        "its 'main duty'), usually because they accept a settled home. These are three months of "
+        "figures, so smaller boroughs can change a lot from one quarter to the next."
     )
     ended = point("main_duty_ended_total")
     if ended is not None:
         prs = point("main_duty_ended_by_reason", "prs_offer_accepted")
         social = point("main_duty_ended_by_reason", "social_offer_accepted")
         c1, c2, c3 = st.columns(3)
-        c1.metric("Newham: main duty ended (quarter)", f"{ended['value']:,.0f}")
+        c1.metric("Newham: cases closed", f"{ended['value']:,.0f}")
         if prs is not None:
-            c2.metric("of which private rented offer accepted", f"{prs['value']:,.0f}")
+            c2.metric("Accepted a private rented home", f"{prs['value']:,.0f}")
         if social is not None:
-            c3.metric("of which social housing offer accepted", f"{social['value']:,.0f}")
+            c3.metric("Accepted a social home", f"{social['value']:,.0f}")
     compare_breakdown(
         df,
         "main_duty_ended_by_reason_share",
@@ -170,7 +179,10 @@ with tabs[2]:
     source_footnote(df[df.indicator == "main_duty_ended_by_reason"])
 
 with tabs[3]:
-    chart_title("Where out-of-area households are placed", "Counts at 31 March 2026, by region.")
+    chart_title(
+        "Where households housed outside their borough are living",
+        "Number of households on 31 March 2026, by region.",
+    )
     dest = latest_period(
         df[(df.indicator == "ta_out_of_area_by_destination") & df.area_name.isin(areas)]
     )
@@ -178,9 +190,9 @@ with tabs[3]:
         piv = dest.pivot_table(index="breakdown", columns="area_name", values="value")
         piv.index = [pretty(i) for i in piv.index]
         st.dataframe(piv.fillna(0).astype(int), width="stretch")
-        st.caption("Counts of households by destination region (TA9).")
+        st.caption("Number of households in each region.")
     caveat("ta_out_of_area_by_destination")
-    chart_title("Out-of-area households by type of accommodation", "")
+    chart_title("Households housed outside their borough, by type of home", "")
     compare_breakdown(
         df,
         "ta_out_of_area_by_accommodation_type_share",
@@ -195,7 +207,7 @@ with tabs[3]:
             "no_accommodation_secured",
         ],
     )
-    chart_title("Out-of-area households by household type", "")
+    chart_title("Households housed outside their borough, by type of household", "")
     compare_breakdown(
         df,
         "ta_out_of_area_by_composition_share",
@@ -216,8 +228,9 @@ with tabs[4]:
     if section:
         st.markdown(section)
     else:
-        st.info("`docs/newham_evidence_brief.md` not found.")
+        st.info("The policy summary isn't available yet.")
     st.caption(
-        "This records what is offered in published policy. Uptake and outcomes are not shown: "
-        "none was found. See the Policies page for the services map and policy documents."
+        "This shows what Newham's published policies offer. We found no figures on how many "
+        "families use these services or whether they help. See the Council support page for "
+        "more."
     )

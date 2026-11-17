@@ -162,15 +162,15 @@ def load_dictionary(path=DICTIONARY_PATH) -> dict[str, dict]:
             **b,
             "name": f"{base}_share",
             "label": f"{b['label']} (share, %)",
-            "definition": f"Each breakdown as a percentage of its group total. {b['definition']}",
+            "definition": f"Shown as percentages that add up to 100%. {b['definition']}",
             "unit": "percent",
         }
         if base in SHARE_OF_KNOWN:
             out[f"{base}_share_of_known"] = {
                 **out[f"{base}_share"],
                 "name": f"{base}_share_of_known",
-                "label": f"{b['label']} (share of known, %)",
-                "caveats": f"Excludes households whose ethnicity is not known. {b['caveats']}",
+                "label": f"{b['label']} (share of those recorded, %)",
+                "caveats": f"Leaves out households whose ethnicity isn't recorded. {b['caveats']}",
             }
     return out
 

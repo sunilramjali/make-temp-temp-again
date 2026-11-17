@@ -9,8 +9,8 @@ PAGES = ["Home.py"] + [f"pages/{p.name}" for p in sorted((ROOT / "app" / "pages"
 HAS_DATA = (PROCESSED / "indicators.parquet").exists()
 CHART_PAGES = [
     "pages/1_London_boroughs.py",
-    "pages/2_Demographics.py",
-    "pages/3_Current_solution.py",
+    "pages/2_Who_is_affected.py",
+    "pages/3_Where_families_live.py",
     "pages/4_Social_housing.py",
 ]
 

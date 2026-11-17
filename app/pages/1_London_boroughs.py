@@ -14,10 +14,10 @@ st.set_page_config(page_title="London boroughs", layout="wide")
 
 indicator_explorer(
     "London boroughs",
-    "Borough comparison of temporary accommodation (TA), the housing register, social lettings "
-    "and new council homes, with Newham highlighted. Choose an indicator and period. "
-    "Indicators ending '(4-quarter average)' are Trust for London averages, a different measure "
-    "from the MHCLG 31 March 2026 snapshot.",
+    "See how London's 33 boroughs compare on temporary accommodation (TA), social housing "
+    "waiting lists, new lettings and new council homes. Choose what to compare and when. "
+    "Measures marked 'yearly average' are averaged over four quarters, so they differ slightly "
+    "from the single-day count on 31 March 2026.",
     [
         "ta_households_pct_of_households",
         "ta_households_with_children_pct_of_households",
@@ -47,16 +47,16 @@ indicator_explorer(
 df = load_data()
 if df is not None and not df[df.indicator == "ta_households_avg4q"].empty:
     st.divider()
-    st.header("London over time, 2002 to 2025")
+    st.header("How London has changed, 2002 to 2025")
     chart_title(
-        "Households in TA in London, yearly average",
-        "Up from 48,678 in 2002 to 74,860 in 2025. Trust for London, from MHCLG; the 2018/2019 "
-        "line marks a change in how MHCLG collects the data.",
+        "Households in temporary accommodation in London, yearly average",
+        "Up from 48,678 in 2002 to 74,860 in 2025. The line in 2018/19 marks a change in how "
+        "the government collects the figures.",
     )
     trend(df, "ta_households_avg4q", ["London"])
     chart_title(
-        "London households in TA by type of accommodation",
-        "Nightly-paid self-contained accommodation has become the largest type.",
+        "London households in temporary accommodation, by type of home",
+        "Homes rented from private owners by the night are now the most common type.",
     )
     stacked_trend(
         df,

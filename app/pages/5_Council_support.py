@@ -7,45 +7,48 @@ from components import chart_title, page_header, read_doc, table_view
 from ta_london.paths import SERVICES_MAP
 from ta_london.services import add_evidence_states, list_policy_documents, load_services
 
-st.set_page_config(page_title="Policies and services · TA in London", layout="wide")
+st.set_page_config(page_title="Council support · TA in London", layout="wide")
 page_header(
-    "Policies and services",
-    "What each borough offers, kept separate from evidence that a service is used or works. "
-    "A published scheme is not evidence that it works.",
+    "What support do councils offer?",
+    "The help each council says it offers families, and whether there is any proof that "
+    "families use it or that it works. A scheme described in a policy document is not proof "
+    "that it helps anyone.",
 )
 
 CATEGORY_LABELS = {
-    "prevention": "Prevention",
-    "prs_access": "Private rented access",
-    "landlord_incentives": "Landlord incentives",
-    "deposits": "Deposits",
-    "allocations": "Allocations",
+    "prevention": "Preventing homelessness",
+    "prs_access": "Finding a private rented home",
+    "landlord_incentives": "Payments to landlords",
+    "deposits": "Help with deposits",
+    "allocations": "How social homes are allocated",
     "tenancy_support": "Tenancy support",
 }
-STATES = ["Not recorded", "Offered", "Offered, uptake evidence", "Offered, outcome evidence"]
+STATES = [
+    "Nothing found",
+    "Offered",
+    "Offered, and proof families use it",
+    "Offered, and proof it works",
+]
 
 services = add_evidence_states(load_services()) if SERVICES_MAP.exists() else pd.DataFrame()
 
 tab_overview, tab_table, tab_docs, tab_brief, tab_sources = st.tabs(
-    ["Overview", "All services", "Policy documents", "Evidence brief", "Source links"]
+    ["Overview", "All services", "Policy documents", "Newham summary", "Source links"]
 )
 
 with tab_overview:
     if services.empty:
-        st.info(
-            "`policy/services_map.csv` has no rows yet. Add one row per borough and service, "
-            "citing the policy document and page."
-        )
+        st.info("No services have been recorded yet.")
     else:
         c = st.columns(3)
         c[0].metric("Services offered", f"{int(services['offered'].sum())}")
-        c[1].metric("With uptake evidence", f"{int(services['has_uptake_evidence'].sum())}")
-        c[2].metric("With outcome evidence", f"{int(services['has_outcome_evidence'].sum())}")
+        c[1].metric("With proof families use it", f"{int(services['has_uptake_evidence'].sum())}")
+        c[2].metric("With proof it works", f"{int(services['has_outcome_evidence'].sum())}")
 
         chart_title(
-            "Evidence for each service",
-            "Offered means a published document describes it. Uptake and outcome need separate "
-            "evidence: numbers using it, or results.",
+            "What we found for each service",
+            "'Offered' means a council document describes it. 'Used' needs figures showing "
+            "families use it. 'Works' needs evidence of results.",
         )
         checklist = pd.DataFrame(
             {
@@ -53,8 +56,8 @@ with tab_overview:
                 "Category": services["service_category"].map(CATEGORY_LABELS),
                 "Service": services["service_name"],
                 "Offered": services["offered"],
-                "Uptake": services["has_uptake_evidence"],
-                "Outcome": services["has_outcome_evidence"],
+                "Used": services["has_uptake_evidence"],
+                "Works": services["has_outcome_evidence"],
                 "Source": services["offered_source"],
             }
         ).sort_values(["Borough", "Category", "Service"])
@@ -66,8 +69,8 @@ with tab_overview:
             column_config={
                 "Borough": st.column_config.TextColumn(width="small"),
                 "Offered": st.column_config.CheckboxColumn(width="small"),
-                "Uptake": st.column_config.CheckboxColumn(width="small"),
-                "Outcome": st.column_config.CheckboxColumn(width="small"),
+                "Used": st.column_config.CheckboxColumn(width="small"),
+                "Works": st.column_config.CheckboxColumn(width="small"),
                 "Service": st.column_config.TextColumn(width="large"),
                 "Source": st.column_config.TextColumn(width="medium"),
             },
@@ -83,16 +86,16 @@ with tab_overview:
             .astype(int)
         )
         chart_title(
-            "Borough by service category",
-            "Each cell shows the strongest evidence recorded. Only Newham is mapped so far; "
-            "comparator boroughs will appear as rows.",
+            "Each council, by type of support",
+            "Each box shows the strongest evidence we found. Only Newham has been checked so far; "
+            "other boroughs will be added as rows.",
         )
         ramp = viz.tok("ordinal")
         colours = [viz.tok("neutral"), ramp[0], ramp[1], ramp[2]]
         scale = []
         for i, col in enumerate(colours):
             scale += [[i / 4, col], [(i + 1) / 4, col]]
-        short = ["None recorded", "Offered", "Uptake", "Outcome"]
+        short = ["Nothing found", "Offered", "Used", "Works"]
         text_colour = [viz.tok("ink2"), "#0b0b0b", "#ffffff", "#ffffff"]
         x_labels = [CATEGORY_LABELS[c] for c in grid.columns]
         fig = go.Figure(
@@ -143,7 +146,7 @@ with tab_table:
         f1, f2 = st.columns(2)
         boroughs = f1.multiselect("Borough", sorted(services["borough"].unique()))
         cats = f2.multiselect(
-            "Service category",
+            "Type of support",
             list(CATEGORY_LABELS),
             format_func=CATEGORY_LABELS.get,
         )
@@ -175,12 +178,9 @@ with tab_table:
 with tab_docs:
     docs = list_policy_documents()
     if docs.empty:
-        st.info(
-            "No markdown policy documents yet. Put `.md` files in `policy/national/`, "
-            "`policy/newham/` or `policy/comparators/<borough>/`."
-        )
+        st.info("No policy documents have been added yet.")
     else:
-        groups = st.multiselect("Folder", sorted(docs["group"].unique()))
+        groups = st.multiselect("Filter by group", sorted(docs["group"].unique()))
         view = docs[docs["group"].isin(groups)] if groups else docs
         choice = st.selectbox("Document", view["relative_path"])
         path = view.loc[view["relative_path"] == choice, "path"].iloc[0]
@@ -188,7 +188,9 @@ with tab_docs:
         st.markdown(path.read_text(encoding="utf-8"))
 
 with tab_brief:
-    st.markdown(read_doc("docs/newham_evidence_brief.md") or "Evidence brief not found.")
+    st.markdown(
+        read_doc("docs/newham_evidence_brief.md") or "The Newham summary isn't available yet."
+    )
 
 with tab_sources:
-    st.markdown(read_doc("docs/source_links.md") or "Source list not found.")
+    st.markdown(read_doc("docs/source_links.md") or "The source list isn't available yet.")
